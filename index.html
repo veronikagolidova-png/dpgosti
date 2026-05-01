@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Бонусная карта</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f2ea;
+      color: #222;
+    }
+
+    .app {
+      min-height: 100vh;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin: 0 0 12px;
+      line-height: 1.1;
+    }
+
+    .bonus {
+      font-size: 44px;
+      font-weight: bold;
+      margin: 12px 0 4px;
+    }
+
+    .qr {
+      width: 180px;
+      height: 180px;
+      border-radius: 24px;
+      background: repeating-linear-gradient(
+        45deg,
+        #222,
+        #222 8px,
+        #fff 8px,
+        #fff 16px
+      );
+      margin: 24px auto 12px;
+    }
+
+    .button {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 16px;
+      background: #222;
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: #e8dfd0;
+      color: #222;
+      margin-top: 12px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #777;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="label">Ваша бонусная карта</div>
+      <h1>Добро пожаловать!</h1>
+      <p>Здесь будут ваши баллы, карта и персональные предложения.</p>
+
+      <div class="bonus">0</div>
+      <div class="label">баллов на счете</div>
+
+      <div class="qr"></div>
+
+      <p class="small">
+        Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
+      </p>
+    </div>
+
+    <button class="button" onclick="sharePhone()">
+      Поделиться номером телефона
+    </button>
+
+    <button class="button secondary" onclick="showInfo()">
+      Как это работает?
+    </button>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+
+    tg.expand();
+
+    function sharePhone() {
+      alert("Скоро здесь будет запрос номера телефона через Telegram.");
+    }
+
+    function showInfo() {
+      alert("После подключения к iiko здесь будут отображаться ваши реальные баллы.");
+    }
+  </script>
+</body>
+</html>
