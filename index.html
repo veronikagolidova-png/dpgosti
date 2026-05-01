@@ -6,12 +6,24 @@
 
   <title>Бонусная карта</title>
 
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
+    :root {
+      --bg: #f6f2ea;
+      --card: #ffffff;
+      --text: #222222;
+      --muted: #777777;
+      --button: #222222;
+      --button-text: #ffffff;
+      --secondary: #e8dfd0;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f6f2ea;
-      color: #222;
+      background: var(--bg);
+      color: var(--text);
     }
 
     .app {
@@ -21,7 +33,7 @@
     }
 
     .card {
-      background: #ffffff;
+      background: var(--card);
       border-radius: 28px;
       padding: 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
@@ -30,7 +42,7 @@
 
     .label {
       font-size: 13px;
-      color: #777;
+      color: var(--muted);
       margin-bottom: 6px;
     }
 
@@ -38,6 +50,10 @@
       font-size: 28px;
       margin: 0 0 12px;
       line-height: 1.1;
+    }
+
+    p {
+      line-height: 1.4;
     }
 
     .bonus {
@@ -65,22 +81,32 @@
       border: none;
       border-radius: 18px;
       padding: 16px;
-      background: #222;
-      color: #fff;
+      background: var(--button);
+      color: var(--button-text);
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
     }
 
     .button.secondary {
-      background: #e8dfd0;
-      color: #222;
+      background: var(--secondary);
+      color: var(--text);
       margin-top: 12px;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #fff7df;
+      font-size: 14px;
+      line-height: 1.4;
+      display: none;
     }
 
     .small {
       font-size: 13px;
-      color: #777;
+      color: var(--muted);
       text-align: center;
       line-height: 1.4;
     }
@@ -91,8 +117,8 @@
   <div class="app">
     <div class="card">
       <div class="label">Ваша бонусная карта</div>
-      <h1>Добро пожаловать!</h1>
-      <p>Здесь будут ваши баллы, карта и персональные предложения.</p>
+      <h1 id="title">Добро пожаловать!</h1>
+      <p id="subtitle">Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.</p>
 
       <div class="bonus">0</div>
       <div class="label">баллов на счете</div>
@@ -111,21 +137,53 @@
     <button class="button secondary" onclick="showInfo()">
       Как это работает?
     </button>
+
+    <div class="status" id="statusBox"></div>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <script>
-    const tg = window.Telegram.WebApp;
+    const tg = window.Telegram && window.Telegram.WebApp;
+    const statusBox = document.getElementById("statusBox");
+    const title = document.getElementById("title");
 
-    tg.expand();
+    if (tg) {
+      tg.ready();
+      tg.expand();
+
+      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+
+      if (user && user.first_name) {
+        title.textContent = `Привет, ${user.first_name}!`;
+      }
+    }
+
+    function showStatus(text) {
+      statusBox.style.display = "block";
+      statusBox.textContent = text;
+    }
 
     function sharePhone() {
-      alert("Скоро здесь будет запрос номера телефона через Telegram.");
+      if (!tg) {
+        showStatus("Откройте приложение внутри Telegram, чтобы поделиться номером телефона.");
+        return;
+      }
+
+      if (!tg.requestContact) {
+        showStatus("В вашей версии Telegram запрос номера может не поддерживаться. Обновите приложение Telegram и попробуйте снова.");
+        return;
+      }
+
+      tg.requestContact(function(shared) {
+        if (shared) {
+          showStatus("Спасибо! Номер отправлен боту. Следующий шаг — подключим сервер, чтобы сохранить номер и найти вашу карту в iiko.");
+        } else {
+          showStatus("Вы не поделились номером. Без номера мы не сможем найти вашу бонусную карту.");
+        }
+      });
     }
 
     function showInfo() {
-      alert("После подключения к iiko здесь будут отображаться ваши реальные баллы.");
+      showStatus("Сейчас это тестовая версия. Дальше мы подключим базу гостей и iiko, чтобы здесь отображались реальные баллы.");
     }
   </script>
 </body>
