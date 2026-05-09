@@ -4,11 +4,13 @@ export default async function handler(req, res) {
   }
 
   const BOT_TOKEN = process.env.BOT_TOKEN;
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!BOT_TOKEN) {
+  if (!BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({
       ok: false,
-      error: "BOT_TOKEN is not set"
+      error: "Missing environment variables"
     });
   }
 
@@ -24,20 +26,45 @@ export default async function handler(req, res) {
     const chatId = message.chat.id;
 
     if (message.contact) {
-      const phone = message.contact.phone_number;
-      const firstName = message.from?.first_name || "гость";
-      const telegramId = message.from?.id;
+      const rawPhone = message.contact.phone_number;
+      const phone = normalizePhone(rawPhone);
 
-      console.log("Новый контакт:", {
+      const telegramId = message.from?.id || message.contact?.user_id || null;
+      const firstName = message.from?.first_name || message.contact?.first_name || null;
+      const lastName = message.from?.last_name || message.contact?.last_name || null;
+      const username = message.from?.username || null;
+
+      const guest = {
+        telegram_id: telegramId,
         phone,
-        firstName,
-        telegramId
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        updated_at: new Date().toISOString()
+      };
+
+      const saved = await saveGuestToSupabase({
+        supabaseUrl: SUPABASE_URL,
+        supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
+        guest
       });
+
+      if (!saved.ok) {
+        console.error("Supabase save error:", saved.error);
+
+        await sendTelegramMessage(
+          BOT_TOKEN,
+          chatId,
+          `Спасибо, ${firstName || "гость"}! Номер ${phone} получили ✅\n\nНо пока не смогли сохранить его в базу. Уже проверяем.`
+        );
+
+        return res.status(200).json({ ok: true });
+      }
 
       await sendTelegramMessage(
         BOT_TOKEN,
         chatId,
-        `Спасибо, ${firstName}! Номер ${phone} получили ✅\n\nСледующий шаг — подключим базу гостей и будем искать вашу карту лояльности.`
+        `Спасибо, ${firstName || "гость"}! Номер ${phone} сохранили ✅\n\nТеперь мы сможем привязать вашу карту лояльности и подтянуть баллы.`
       );
 
       return res.status(200).json({ ok: true });
@@ -60,6 +87,49 @@ export default async function handler(req, res) {
       error: "Webhook handled with error"
     });
   }
+}
+
+function normalizePhone(phone) {
+  let digits = String(phone || "").replace(/\D/g, "");
+
+  if (digits.length === 11 && digits.startsWith("8")) {
+    digits = "7" + digits.slice(1);
+  }
+
+  if (digits.length === 10) {
+    digits = "7" + digits;
+  }
+
+  return digits ? `+${digits}` : "";
+}
+
+async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
+  const url = `${supabaseUrl}/rest/v1/guests?on_conflict=phone`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "apikey": supabaseKey,
+      "Authorization": `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json",
+      "Prefer": "resolution=merge-duplicates,return=representation"
+    },
+    body: JSON.stringify(guest)
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: text
+    };
+  }
+
+  return {
+    ok: true,
+    data: text
+  };
 }
 
 async function sendTelegramMessage(token, chatId, text) {
