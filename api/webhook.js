@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(200).send("Bot webhook is working");
   }
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
       error: "Webhook handled with error"
     });
   }
-}
+};
 
 function normalizePhone(phone) {
   let digits = String(phone || "").replace(/\D/g, "");
@@ -101,35 +101,6 @@ function normalizePhone(phone) {
   }
 
   return digits ? `+${digits}` : "";
-}
-
-async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
-  const url = `${supabaseUrl}/rest/v1/guests?on_conflict=phone`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "apikey": supabaseKey,
-      "Authorization": `Bearer ${supabaseKey}`,
-      "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates,return=representation"
-    },
-    body: JSON.stringify(guest)
-  });
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      error: text
-    };
-  }
-
-  return {
-    ok: true,
-    data: text
-  };
 }
 
 async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
@@ -164,6 +135,9 @@ async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
     data: text
   };
 }
+
+async function sendTelegramMessage(token, chatId, text) {
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
   await fetch(url, {
     method: "POST",
