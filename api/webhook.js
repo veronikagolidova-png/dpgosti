@@ -132,8 +132,38 @@ async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
   };
 }
 
-async function sendTelegramMessage(token, chatId, text) {
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
+  const cleanSupabaseUrl = String(supabaseUrl || "")
+    .replace(/\/$/, "")
+    .replace(/\/rest\/v1$/, "");
+
+  const url = `${cleanSupabaseUrl}/rest/v1/guests?on_conflict=phone`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "apikey": supabaseKey,
+      "Authorization": `Bearer ${supabaseKey}`,
+      "Content-Type": "application/json",
+      "Prefer": "resolution=merge-duplicates,return=representation"
+    },
+    body: JSON.stringify(guest)
+  });
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: text
+    };
+  }
+
+  return {
+    ok: true,
+    data: text
+  };
+}
 
   await fetch(url, {
     method: "POST",
