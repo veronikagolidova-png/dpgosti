@@ -7,6 +7,7 @@
   <title>Бонусная карта</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
     :root {
@@ -17,6 +18,7 @@
       --button: #222222;
       --button-text: #ffffff;
       --secondary: #e8dfd0;
+      --accent: #f0e6d4;
     }
 
     body {
@@ -57,29 +59,32 @@
     }
 
     .bonus {
-      font-size: 44px;
+      font-size: 48px;
       font-weight: bold;
       margin: 12px 0 4px;
     }
 
     .phone {
       font-size: 16px;
-      margin-top: 8px;
+      margin-top: 10px;
       color: var(--muted);
     }
 
-    .qr {
-      width: 180px;
-      height: 180px;
-      border-radius: 24px;
-      background: repeating-linear-gradient(
-        45deg,
-        #222,
-        #222 8px,
-        #fff 8px,
-        #fff 16px
-      );
+    .qr-wrap {
+      width: 210px;
+      height: 210px;
+      border-radius: 28px;
+      background: #ffffff;
       margin: 24px auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+    }
+
+    canvas {
+      width: 180px !important;
+      height: 180px !important;
     }
 
     .button {
@@ -116,6 +121,16 @@
       text-align: center;
       line-height: 1.4;
     }
+
+    .badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent);
+      font-size: 13px;
+      color: #4a3d2f;
+    }
   </style>
 </head>
 
@@ -130,8 +145,11 @@
       <div class="label">баллов на счете</div>
 
       <div class="phone" id="phone"></div>
+      <div class="badge" id="badge">QR-код появится после привязки номера</div>
 
-      <div class="qr"></div>
+      <div class="qr-wrap">
+        <canvas id="qrCanvas"></canvas>
+      </div>
 
       <p class="small">
         Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
@@ -157,6 +175,8 @@
     const subtitle = document.getElementById("subtitle");
     const bonus = document.getElementById("bonus");
     const phone = document.getElementById("phone");
+    const badge = document.getElementById("badge");
+    const qrCanvas = document.getElementById("qrCanvas");
 
     if (tg) {
       tg.ready();
@@ -165,11 +185,24 @@
     } else {
       title.textContent = "Откройте в Telegram";
       subtitle.textContent = "Это приложение работает внутри Telegram Mini App.";
+      renderQr("Откройте карту в Telegram");
     }
 
     function showStatus(text) {
       statusBox.style.display = "block";
       statusBox.textContent = text;
+    }
+
+    function renderQr(value) {
+      if (!window.QRCode || !qrCanvas) {
+        return;
+      }
+
+      QRCode.toCanvas(qrCanvas, value || "no-data", {
+        width: 180,
+        margin: 1,
+        errorCorrectionLevel: "M"
+      });
     }
 
     async function loadGuest() {
@@ -179,6 +212,7 @@
         if (!initData) {
           title.textContent = "Не удалось проверить Telegram";
           subtitle.textContent = "Закройте и снова откройте приложение через бота.";
+          renderQr("Нет данных Telegram");
           return;
         }
 
@@ -201,6 +235,13 @@
           subtitle.textContent = "Мы нашли вашу карту лояльности.";
           bonus.textContent = guest.bonus_balance || 0;
           phone.textContent = guest.phone ? `Телефон: ${guest.phone}` : "";
+
+          const qrValue = guest.iiko_card_number || guest.phone || String(guest.telegram_id);
+          badge.textContent = guest.iiko_card_number
+            ? `Карта: ${guest.iiko_card_number}`
+            : "QR-код по номеру телефона";
+
+          renderQr(qrValue);
           return;
         }
 
@@ -211,15 +252,19 @@
           subtitle.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
           bonus.textContent = "0";
           phone.textContent = "";
+          badge.textContent = "QR-код появится после привязки номера";
+          renderQr(`telegram:${user.id || "unknown"}`);
           return;
         }
 
         title.textContent = "Не удалось загрузить карту";
         subtitle.textContent = "Попробуйте открыть приложение еще раз.";
+        renderQr("Ошибка загрузки карты");
       } catch (error) {
         console.error(error);
         title.textContent = "Ошибка загрузки";
         subtitle.textContent = "Проверьте интернет и попробуйте снова.";
+        renderQr("Ошибка загрузки");
       }
     }
 
@@ -236,7 +281,7 @@
 
       tg.requestContact(function(shared) {
         if (shared) {
-          showStatus("Спасибо! Номер отправлен боту. Обновите приложение через пару секунд — карта подтянется из базы.");
+          showStatus("Спасибо! Номер отправлен боту. Обновляем карту...");
           setTimeout(loadGuest, 2000);
         } else {
           showStatus("Вы не поделились номером. Без номера мы не сможем найти вашу бонусную карту.");
@@ -245,7 +290,7 @@
     }
 
     function showInfo() {
-      showStatus("Сейчас карта подтягивает данные из нашей базы. Следующий этап — подключение iiko, чтобы показывать реальные баллы.");
+      showStatus("QR-код сейчас создается по номеру телефона гостя. После подключения iiko заменим его на номер карты из iiko.");
     }
   </script>
 </body>
