@@ -2,296 +2,403 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Бонусная карта</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+  <title>Карта гостя</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     :root {
-      --bg: #f6f2ea;
-      --card: #ffffff;
-      --text: #222222;
-      --muted: #777777;
-      --button: #222222;
-      --button-text: #ffffff;
-      --secondary: #e8dfd0;
-      --accent: #f0e6d4;
+      --bg: #e9e3d8;
+      --card: #0f0f10;
+      --card-2: #171718;
+      --text: #ffffff;
+      --muted: #a7a7ad;
+      --soft: #d9ccb7;
+      --button-dark: #1e1e22;
+      --button-light: #ddd2c0;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      --radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: #111;
     }
 
     .app {
-      min-height: 100vh;
-      padding: 24px;
-      box-sizing: border-box;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
     }
 
     .card {
-      background: var(--card);
-      border-radius: 28px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      margin-bottom: 20px;
+      background: linear-gradient(180deg, #111111 0%, #090909 100%);
+      color: var(--text);
+      border-radius: 34px;
+      padding: 24px 20px 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
     }
 
     .label {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 12px;
     }
 
-    h1 {
-      font-size: 28px;
-      margin: 0 0 12px;
-      line-height: 1.1;
+    .title {
+      font-size: 36px;
+      line-height: 1.05;
+      font-weight: 800;
+      margin: 0 0 14px;
+      letter-spacing: -0.03em;
     }
 
-    p {
+    .subtitle {
+      font-size: 18px;
       line-height: 1.4;
+      color: #e7e7ea;
+      margin-bottom: 24px;
     }
 
-    .bonus {
-      font-size: 48px;
-      font-weight: bold;
-      margin: 12px 0 4px;
+    .points {
+      font-size: 76px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      margin: 0;
+    }
+
+    .points-caption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 18px;
+      margin-bottom: 22px;
     }
 
     .phone {
-      font-size: 16px;
-      margin-top: 10px;
-      color: var(--muted);
+      font-size: 18px;
+      color: #f2f2f4;
+      margin-bottom: 16px;
     }
 
-    .qr-wrap {
-      width: 210px;
-      height: 210px;
-      border-radius: 28px;
+    .tag {
+      display: inline-block;
+      background: var(--soft);
+      color: #433a2f;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .qr-box {
+      width: 100%;
       background: #ffffff;
-      margin: 24px auto 12px;
+      border-radius: 28px;
+      padding: 18px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
-      overflow: hidden;
+      align-items: center;
+      min-height: 260px;
+      margin-bottom: 18px;
     }
 
-    .qr-img {
-      width: 180px;
-      height: 180px;
-      display: block;
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      min-width: 220px;
     }
 
-    .button {
+    .qr-note {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .btn {
       width: 100%;
       border: none;
-      border-radius: 18px;
-      padding: 16px;
-      background: var(--button);
-      color: var(--button-text);
-      font-size: 16px;
-      font-weight: bold;
+      border-radius: 22px;
+      padding: 20px 18px;
+      font-size: 18px;
+      font-weight: 800;
       cursor: pointer;
+      margin-top: 16px;
     }
 
-    .button.secondary {
-      background: var(--secondary);
-      color: var(--text);
-      margin-top: 12px;
+    .btn-primary {
+      background: #1d1d20;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: var(--button-light);
+      color: #1f1f22;
     }
 
     .status {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 16px;
-      background: #fff7df;
-      font-size: 14px;
-      line-height: 1.4;
+      margin-top: 16px;
+      background: rgba(255,255,255,0.72);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 15px;
+      line-height: 1.45;
       display: none;
     }
 
-    .small {
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.4;
+    .status.show {
+      display: block;
     }
 
-    .badge {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: var(--accent);
-      font-size: 13px;
-      color: #4a3d2f;
+    .status.error {
+      background: #ffe3e3;
+      color: #7d1010;
+    }
+
+    .info-box {
+      margin-top: 16px;
+      background: rgba(255,255,255,0.72);
+      border-radius: 18px;
+      padding: 16px;
+      font-size: 15px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .info-box.show {
+      display: block;
+    }
+
+    .loading {
+      opacity: 0.7;
+    }
+
+    @media (max-width: 430px) {
+      .title {
+        font-size: 30px;
+      }
+
+      .points {
+        font-size: 64px;
+      }
+
+      .subtitle,
+      .phone,
+      .points-caption {
+        font-size: 17px;
+      }
     }
   </style>
 </head>
-
 <body>
   <div class="app">
-    <div class="card">
+    <div class="card" id="card">
       <div class="label">Ваша бонусная карта</div>
-      <h1 id="title">Загружаем карту...</h1>
-      <p id="subtitle">Проверяем ваши данные.</p>
 
-      <div class="bonus" id="bonus">0</div>
-      <div class="label">баллов на счете</div>
+      <h1 class="title" id="title">Привет!</h1>
+      <div class="subtitle" id="subtitle">Мы ищем вашу карту лояльности.</div>
 
-      <div class="phone" id="phone"></div>
-      <div class="badge" id="badge">QR-код появится после привязки номера</div>
+      <div class="points" id="points">0</div>
+      <div class="points-caption">баллов на счете</div>
 
-      <div class="qr-wrap">
-        <img id="qrImage" class="qr-img" alt="QR-код карты" />
+      <div class="phone" id="phone">Телефон: —</div>
+
+      <div class="tag">QR-код по номеру телефона</div>
+
+      <div class="qr-box">
+        <div id="qrcode"></div>
       </div>
 
-      <p class="small">
+      <div class="qr-note">
         Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
-      </p>
+      </div>
     </div>
 
-    <button class="button" onclick="sharePhone()">
-      Поделиться номером телефона
-    </button>
+    <button class="btn btn-primary" id="shareBtn">Поделиться номером телефона</button>
+    <button class="btn btn-secondary" id="howBtn">Как это работает?</button>
 
-    <button class="button secondary" onclick="showInfo()">
-      Как это работает?
-    </button>
+    <div class="info-box" id="howBox">
+      1. Нажмите «Поделиться номером телефона».<br />
+      2. Бот свяжет ваш Telegram с картой гостя.<br />
+      3. После этого карта и бонусы будут отображаться автоматически.
+    </div>
 
-    <div class="status" id="statusBox"></div>
+    <div class="status" id="status"></div>
   </div>
 
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp;
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
-    const statusBox = document.getElementById("statusBox");
-    const title = document.getElementById("title");
-    const subtitle = document.getElementById("subtitle");
-    const bonus = document.getElementById("bonus");
-    const phone = document.getElementById("phone");
-    const badge = document.getElementById("badge");
-    const qrImage = document.getElementById("qrImage");
+    if (tg.setBackgroundColor) tg.setBackgroundColor("#e9e3d8");
+    if (tg.setHeaderColor) tg.setHeaderColor("#e9e3d8");
 
-    if (tg) {
-      tg.ready();
-      tg.expand();
-      loadGuest();
-    } else {
-      title.textContent = "Откройте в Telegram";
-      subtitle.textContent = "Это приложение работает внутри Telegram Mini App.";
-      renderQr("Откройте карту в Telegram");
-    }
+    const titleEl = document.getElementById("title");
+    const subtitleEl = document.getElementById("subtitle");
+    const pointsEl = document.getElementById("points");
+    const phoneEl = document.getElementById("phone");
+    const qrEl = document.getElementById("qrcode");
+    const statusEl = document.getElementById("status");
+    const howBtn = document.getElementById("howBtn");
+    const howBox = document.getElementById("howBox");
+    const shareBtn = document.getElementById("shareBtn");
+    const cardEl = document.getElementById("card");
 
-    function showStatus(text) {
-      statusBox.style.display = "block";
-      statusBox.textContent = text;
-    }
-
-    function renderQr(value) {
-      if (!qrImage) {
-        return;
+    function showStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.classList.add("show");
+      if (isError) {
+        statusEl.classList.add("error");
+      } else {
+        statusEl.classList.remove("error");
       }
+    }
 
-      const qrValue = value || "no-data";
-      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrValue)}`;
+    function hideStatus() {
+      statusEl.classList.remove("show", "error");
+      statusEl.textContent = "";
+    }
+
+    function normalizeGuest(data) {
+      const guest = data?.guest || data?.user || data?.profile || data || {};
+
+      return {
+        first_name:
+          guest.first_name ||
+          guest.name ||
+          tg?.initDataUnsafe?.user?.first_name ||
+          "Гость",
+        phone: guest.phone || guest.phone_number || "не указан",
+        points:
+          guest.points ??
+          guest.balance ??
+          guest.bonus_points ??
+          guest.bonuses ??
+          0,
+        qr_value:
+          guest.qr_value ||
+          guest.card_number ||
+          guest.phone ||
+          guest.phone_number ||
+          "",
+      };
+    }
+
+    function renderGuest(guest) {
+      titleEl.textContent = `Привет, ${guest.first_name}!`;
+      subtitleEl.textContent = "Мы нашли вашу карту лояльности.";
+      pointsEl.textContent = guest.points;
+      phoneEl.textContent = `Телефон: ${guest.phone}`;
+
+      qrEl.innerHTML = "";
+
+      if (guest.qr_value) {
+        new QRCode(qrEl, {
+          text: String(guest.qr_value),
+          width: 220,
+          height: 220,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.M,
+        });
+      } else {
+        subtitleEl.textContent = "Мы не смогли сформировать QR-код.";
+      }
     }
 
     async function loadGuest() {
       try {
-        const initData = tg.initData;
+        hideStatus();
+        cardEl.classList.add("loading");
 
-        if (!initData) {
-          title.textContent = "Не удалось проверить Telegram";
-          subtitle.textContent = "Закройте и снова откройте приложение через бота.";
-          renderQr("Нет данных Telegram");
-          return;
-        }
-
-        const response = await fetch("/api/guest", {
+        const res = await fetch("/api/guest", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            initData
-          })
+            initData: tg.initData || "",
+            user: tg.initDataUnsafe?.user || null,
+          }),
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        if (data.ok && data.guest) {
-          const guest = data.guest;
-
-          title.textContent = `Привет, ${guest.first_name || "гость"}!`;
-          subtitle.textContent = "Мы нашли вашу карту лояльности.";
-          bonus.textContent = guest.bonus_balance || 0;
-          phone.textContent = guest.phone ? `Телефон: ${guest.phone}` : "";
-
-          const qrValue = guest.iiko_card_number || guest.phone || String(guest.telegram_id);
-
-          badge.textContent = guest.iiko_card_number
-            ? `Карта: ${guest.iiko_card_number}`
-            : "QR-код по номеру телефона";
-
-          renderQr(qrValue);
-          return;
+        if (!res.ok || data.ok === false) {
+          throw new Error(data.error || "Не удалось загрузить карту");
         }
 
-        if (data.reason === "guest_not_found") {
-          const user = data.telegram_user || {};
-
-          title.textContent = `Привет, ${user.first_name || "гость"}!`;
-          subtitle.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
-          bonus.textContent = "0";
-          phone.textContent = "";
-          badge.textContent = "QR-код появится после привязки номера";
-
-          renderQr(`telegram:${user.id || "unknown"}`);
-          return;
-        }
-
-        title.textContent = "Не удалось загрузить карту";
-        subtitle.textContent = "Попробуйте открыть приложение еще раз.";
-        renderQr("Ошибка загрузки карты");
+        const guest = normalizeGuest(data);
+        renderGuest(guest);
       } catch (error) {
         console.error(error);
-        title.textContent = "Ошибка загрузки";
-        subtitle.textContent = "Проверьте интернет и попробуйте снова.";
-        renderQr("Ошибка загрузки");
+        titleEl.textContent = "Привет!";
+        subtitleEl.textContent = "Пока не удалось загрузить карту.";
+        pointsEl.textContent = "0";
+        phoneEl.textContent = "Телефон: —";
+        qrEl.innerHTML = "";
+        showStatus("Ошибка загрузки карты. Попробуйте открыть мини-приложение еще раз.", true);
+      } finally {
+        cardEl.classList.remove("loading");
       }
     }
 
-    function sharePhone() {
-      if (!tg) {
-        showStatus("Откройте приложение внутри Telegram, чтобы поделиться номером телефона.");
-        return;
-      }
+    shareBtn.addEventListener("click", () => {
+      hideStatus();
 
       if (!tg.requestContact) {
-        showStatus("В вашей версии Telegram запрос номера может не поддерживаться. Обновите Telegram и попробуйте снова.");
+        showStatus("На этом устройстве запрос номера телефона недоступен.", true);
         return;
       }
 
-      tg.requestContact(function(shared) {
+      tg.requestContact(function (shared) {
         if (shared) {
-          showStatus("Спасибо! Номер отправлен боту. Обновляем карту...");
-          setTimeout(loadGuest, 2000);
+          showStatus("Номер телефона отправлен. Обновляем данные...");
+          setTimeout(() => {
+            loadGuest();
+          }, 1500);
         } else {
-          showStatus("Вы не поделились номером. Без номера мы не сможем найти вашу бонусную карту.");
+          showStatus("Вы не поделились номером телефона.", true);
         }
       });
-    }
+    });
 
-    function showInfo() {
-      showStatus("QR-код сейчас создается по номеру телефона гостя. После подключения iiko заменим его на номер карты из iiko.");
-    }
+    howBtn.addEventListener("click", () => {
+      howBox.classList.toggle("show");
+    });
+
+    loadGuest();
   </script>
 </body>
 </html>
