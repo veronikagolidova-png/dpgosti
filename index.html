@@ -62,6 +62,12 @@
       margin: 12px 0 4px;
     }
 
+    .phone {
+      font-size: 16px;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
     .qr {
       width: 180px;
       height: 180px;
@@ -117,11 +123,13 @@
   <div class="app">
     <div class="card">
       <div class="label">Ваша бонусная карта</div>
-      <h1 id="title">Добро пожаловать!</h1>
-      <p id="subtitle">Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.</p>
+      <h1 id="title">Загружаем карту...</h1>
+      <p id="subtitle">Проверяем ваши данные.</p>
 
-      <div class="bonus">0</div>
+      <div class="bonus" id="bonus">0</div>
       <div class="label">баллов на счете</div>
+
+      <div class="phone" id="phone"></div>
 
       <div class="qr"></div>
 
@@ -143,23 +151,76 @@
 
   <script>
     const tg = window.Telegram && window.Telegram.WebApp;
+
     const statusBox = document.getElementById("statusBox");
     const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+    const bonus = document.getElementById("bonus");
+    const phone = document.getElementById("phone");
 
     if (tg) {
       tg.ready();
       tg.expand();
-
-      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-
-      if (user && user.first_name) {
-        title.textContent = `Привет, ${user.first_name}!`;
-      }
+      loadGuest();
+    } else {
+      title.textContent = "Откройте в Telegram";
+      subtitle.textContent = "Это приложение работает внутри Telegram Mini App.";
     }
 
     function showStatus(text) {
       statusBox.style.display = "block";
       statusBox.textContent = text;
+    }
+
+    async function loadGuest() {
+      try {
+        const initData = tg.initData;
+
+        if (!initData) {
+          title.textContent = "Не удалось проверить Telegram";
+          subtitle.textContent = "Закройте и снова откройте приложение через бота.";
+          return;
+        }
+
+        const response = await fetch("/api/guest", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            initData
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.ok && data.guest) {
+          const guest = data.guest;
+
+          title.textContent = `Привет, ${guest.first_name || "гость"}!`;
+          subtitle.textContent = "Мы нашли вашу карту лояльности.";
+          bonus.textContent = guest.bonus_balance || 0;
+          phone.textContent = guest.phone ? `Телефон: ${guest.phone}` : "";
+          return;
+        }
+
+        if (data.reason === "guest_not_found") {
+          const user = data.telegram_user || {};
+
+          title.textContent = `Привет, ${user.first_name || "гость"}!`;
+          subtitle.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
+          bonus.textContent = "0";
+          phone.textContent = "";
+          return;
+        }
+
+        title.textContent = "Не удалось загрузить карту";
+        subtitle.textContent = "Попробуйте открыть приложение еще раз.";
+      } catch (error) {
+        console.error(error);
+        title.textContent = "Ошибка загрузки";
+        subtitle.textContent = "Проверьте интернет и попробуйте снова.";
+      }
     }
 
     function sharePhone() {
@@ -169,13 +230,14 @@
       }
 
       if (!tg.requestContact) {
-        showStatus("В вашей версии Telegram запрос номера может не поддерживаться. Обновите приложение Telegram и попробуйте снова.");
+        showStatus("В вашей версии Telegram запрос номера может не поддерживаться. Обновите Telegram и попробуйте снова.");
         return;
       }
 
       tg.requestContact(function(shared) {
         if (shared) {
-          showStatus("Спасибо! Номер отправлен боту. Следующий шаг — подключим сервер, чтобы сохранить номер и найти вашу карту в iiko.");
+          showStatus("Спасибо! Номер отправлен боту. Обновите приложение через пару секунд — карта подтянется из базы.");
+          setTimeout(loadGuest, 2000);
         } else {
           showStatus("Вы не поделились номером. Без номера мы не сможем найти вашу бонусную карту.");
         }
@@ -183,7 +245,7 @@
     }
 
     function showInfo() {
-      showStatus("Сейчас это тестовая версия. Дальше мы подключим базу гостей и iiko, чтобы здесь отображались реальные баллы.");
+      showStatus("Сейчас карта подтягивает данные из нашей базы. Следующий этап — подключение iiko, чтобы показывать реальные баллы.");
     }
   </script>
 </body>
