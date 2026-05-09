@@ -7,7 +7,6 @@
   <title>Бонусная карта</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
     :root {
@@ -80,11 +79,13 @@
       align-items: center;
       justify-content: center;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+      overflow: hidden;
     }
 
-    canvas {
-      width: 180px !important;
-      height: 180px !important;
+    .qr-img {
+      width: 180px;
+      height: 180px;
+      display: block;
     }
 
     .button {
@@ -148,7 +149,7 @@
       <div class="badge" id="badge">QR-код появится после привязки номера</div>
 
       <div class="qr-wrap">
-        <canvas id="qrCanvas"></canvas>
+        <img id="qrImage" class="qr-img" alt="QR-код карты" />
       </div>
 
       <p class="small">
@@ -176,7 +177,7 @@
     const bonus = document.getElementById("bonus");
     const phone = document.getElementById("phone");
     const badge = document.getElementById("badge");
-    const qrCanvas = document.getElementById("qrCanvas");
+    const qrImage = document.getElementById("qrImage");
 
     if (tg) {
       tg.ready();
@@ -194,15 +195,12 @@
     }
 
     function renderQr(value) {
-      if (!window.QRCode || !qrCanvas) {
+      if (!qrImage) {
         return;
       }
 
-      QRCode.toCanvas(qrCanvas, value || "no-data", {
-        width: 180,
-        margin: 1,
-        errorCorrectionLevel: "M"
-      });
+      const qrValue = value || "no-data";
+      qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrValue)}`;
     }
 
     async function loadGuest() {
@@ -237,6 +235,7 @@
           phone.textContent = guest.phone ? `Телефон: ${guest.phone}` : "";
 
           const qrValue = guest.iiko_card_number || guest.phone || String(guest.telegram_id);
+
           badge.textContent = guest.iiko_card_number
             ? `Карта: ${guest.iiko_card_number}`
             : "QR-код по номеру телефона";
@@ -253,6 +252,7 @@
           bonus.textContent = "0";
           phone.textContent = "";
           badge.textContent = "QR-код появится после привязки номера";
+
           renderQr(`telegram:${user.id || "unknown"}`);
           return;
         }
