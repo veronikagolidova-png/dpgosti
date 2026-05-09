@@ -9,20 +9,21 @@
   <title>Карта гостя</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     :root {
       --bg: #e9e3d8;
-      --card: #0f0f10;
-      --card-2: #171718;
+      --card: #0b0b0c;
+      --card-soft: #151517;
       --text: #ffffff;
-      --muted: #a7a7ad;
-      --soft: #d9ccb7;
-      --button-dark: #1e1e22;
+      --muted: #a8a8ad;
+      --cream: #d9ccb7;
+      --cream-dark: #4b4034;
+      --button-dark: #1d1d20;
       --button-light: #ddd2c0;
+      --danger-bg: #ffe3e3;
+      --danger-text: #7d1010;
       --shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-      --radius: 28px;
     }
 
     * {
@@ -44,13 +45,13 @@
     }
 
     .card {
-      background: linear-gradient(180deg, #111111 0%, #090909 100%);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #111112 0%, #050505 100%);
       color: var(--text);
       border-radius: 34px;
       padding: 24px 20px 26px;
       box-shadow: var(--shadow);
-      overflow: hidden;
-      position: relative;
     }
 
     .card::before {
@@ -60,9 +61,18 @@
       right: -80px;
       width: 240px;
       height: 240px;
-      background: radial-gradient(circle, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0) 70%);
+      background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.09) 0%,
+        rgba(255, 255, 255, 0) 70%
+      );
       border-radius: 50%;
       pointer-events: none;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
     }
 
     .label {
@@ -109,8 +119,8 @@
 
     .tag {
       display: inline-block;
-      background: var(--soft);
-      color: #433a2f;
+      background: var(--cream);
+      color: var(--cream-dark);
       padding: 10px 16px;
       border-radius: 999px;
       font-size: 15px;
@@ -130,12 +140,10 @@
       margin-bottom: 18px;
     }
 
-    #qrcode {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 220px;
-      min-width: 220px;
+    .qr-img {
+      width: 220px;
+      height: 220px;
+      display: block;
     }
 
     .qr-note {
@@ -157,7 +165,7 @@
     }
 
     .btn-primary {
-      background: #1d1d20;
+      background: var(--button-dark);
       color: #ffffff;
     }
 
@@ -168,7 +176,7 @@
 
     .status {
       margin-top: 16px;
-      background: rgba(255,255,255,0.72);
+      background: rgba(255, 255, 255, 0.72);
       border-radius: 18px;
       padding: 14px 16px;
       font-size: 15px;
@@ -181,13 +189,13 @@
     }
 
     .status.error {
-      background: #ffe3e3;
-      color: #7d1010;
+      background: var(--danger-bg);
+      color: var(--danger-text);
     }
 
     .info-box {
       margin-top: 16px;
-      background: rgba(255,255,255,0.72);
+      background: rgba(255, 255, 255, 0.72);
       border-radius: 18px;
       padding: 16px;
       font-size: 15px;
@@ -217,35 +225,48 @@
       .points-caption {
         font-size: 17px;
       }
+
+      .qr-img {
+        width: 200px;
+        height: 200px;
+      }
     }
   </style>
 </head>
+
 <body>
   <div class="app">
     <div class="card" id="card">
-      <div class="label">Ваша бонусная карта</div>
+      <div class="card-content">
+        <div class="label">Ваша бонусная карта</div>
 
-      <h1 class="title" id="title">Привет!</h1>
-      <div class="subtitle" id="subtitle">Мы ищем вашу карту лояльности.</div>
+        <h1 class="title" id="title">Загружаем карту...</h1>
+        <div class="subtitle" id="subtitle">Проверяем ваши данные.</div>
 
-      <div class="points" id="points">0</div>
-      <div class="points-caption">баллов на счете</div>
+        <div class="points" id="points">0</div>
+        <div class="points-caption">баллов на счете</div>
 
-      <div class="phone" id="phone">Телефон: —</div>
+        <div class="phone" id="phone">Телефон: —</div>
 
-      <div class="tag">QR-код по номеру телефона</div>
+        <div class="tag" id="tag">QR-код по номеру телефона</div>
 
-      <div class="qr-box">
-        <div id="qrcode"></div>
-      </div>
+        <div class="qr-box">
+          <img id="qrImage" class="qr-img" alt="QR-код карты" />
+        </div>
 
-      <div class="qr-note">
-        Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
+        <div class="qr-note">
+          Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
+        </div>
       </div>
     </div>
 
-    <button class="btn btn-primary" id="shareBtn">Поделиться номером телефона</button>
-    <button class="btn btn-secondary" id="howBtn">Как это работает?</button>
+    <button class="btn btn-primary" id="shareBtn">
+      Поделиться номером телефона
+    </button>
+
+    <button class="btn btn-secondary" id="howBtn">
+      Как это работает?
+    </button>
 
     <div class="info-box" id="howBox">
       1. Нажмите «Поделиться номером телефона».<br />
@@ -257,27 +278,45 @@
   </div>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-
-    if (tg.setBackgroundColor) tg.setBackgroundColor("#e9e3d8");
-    if (tg.setHeaderColor) tg.setHeaderColor("#e9e3d8");
+    const tg = window.Telegram && window.Telegram.WebApp;
 
     const titleEl = document.getElementById("title");
     const subtitleEl = document.getElementById("subtitle");
     const pointsEl = document.getElementById("points");
     const phoneEl = document.getElementById("phone");
-    const qrEl = document.getElementById("qrcode");
+    const tagEl = document.getElementById("tag");
+    const qrImageEl = document.getElementById("qrImage");
     const statusEl = document.getElementById("status");
     const howBtn = document.getElementById("howBtn");
     const howBox = document.getElementById("howBox");
     const shareBtn = document.getElementById("shareBtn");
     const cardEl = document.getElementById("card");
 
+    if (tg) {
+      tg.ready();
+      tg.expand();
+
+      if (tg.setBackgroundColor) {
+        tg.setBackgroundColor("#e9e3d8");
+      }
+
+      if (tg.setHeaderColor) {
+        tg.setHeaderColor("#e9e3d8");
+      }
+
+      loadGuest();
+    } else {
+      titleEl.textContent = "Откройте в Telegram";
+      subtitleEl.textContent = "Это приложение работает внутри Telegram Mini App.";
+      pointsEl.textContent = "0";
+      phoneEl.textContent = "Телефон: —";
+      renderQr("Откройте карту в Telegram");
+    }
+
     function showStatus(text, isError = false) {
       statusEl.textContent = text;
       statusEl.classList.add("show");
+
       if (isError) {
         statusEl.classList.add("error");
       } else {
@@ -290,84 +329,122 @@
       statusEl.textContent = "";
     }
 
-    function normalizeGuest(data) {
-      const guest = data?.guest || data?.user || data?.profile || data || {};
+    function renderQr(value) {
+      const qrValue = value || "no-data";
 
+      qrImageEl.src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
+        encodeURIComponent(qrValue);
+    }
+
+    function normalizeGuest(guest) {
       return {
         first_name:
           guest.first_name ||
           guest.name ||
           tg?.initDataUnsafe?.user?.first_name ||
           "Гость",
-        phone: guest.phone || guest.phone_number || "не указан",
+
+        phone:
+          guest.phone ||
+          guest.phone_number ||
+          "не указан",
+
         points:
+          guest.bonus_balance ??
           guest.points ??
           guest.balance ??
           guest.bonus_points ??
           guest.bonuses ??
           0,
+
         qr_value:
-          guest.qr_value ||
+          guest.iiko_card_number ||
           guest.card_number ||
+          guest.qr_value ||
           guest.phone ||
           guest.phone_number ||
-          "",
+          guest.telegram_id ||
+          "no-data"
       };
     }
 
     function renderGuest(guest) {
-      titleEl.textContent = `Привет, ${guest.first_name}!`;
+      const normalizedGuest = normalizeGuest(guest);
+
+      titleEl.textContent = `Привет, ${normalizedGuest.first_name}!`;
       subtitleEl.textContent = "Мы нашли вашу карту лояльности.";
-      pointsEl.textContent = guest.points;
-      phoneEl.textContent = `Телефон: ${guest.phone}`;
+      pointsEl.textContent = normalizedGuest.points;
+      phoneEl.textContent = `Телефон: ${normalizedGuest.phone}`;
 
-      qrEl.innerHTML = "";
-
-      if (guest.qr_value) {
-        new QRCode(qrEl, {
-          text: String(guest.qr_value),
-          width: 220,
-          height: 220,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M,
-        });
+      if (guest.iiko_card_number) {
+        tagEl.textContent = `Карта: ${guest.iiko_card_number}`;
       } else {
-        subtitleEl.textContent = "Мы не смогли сформировать QR-код.";
+        tagEl.textContent = "QR-код по номеру телефона";
       }
+
+      renderQr(normalizedGuest.qr_value);
+    }
+
+    function renderGuestNotFound(telegramUser) {
+      const firstName = telegramUser?.first_name || "гость";
+
+      titleEl.textContent = `Привет, ${firstName}!`;
+      subtitleEl.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
+      pointsEl.textContent = "0";
+      phoneEl.textContent = "Телефон: —";
+      tagEl.textContent = "QR-код появится после привязки номера";
+
+      renderQr(`telegram:${telegramUser?.id || "unknown"}`);
     }
 
     async function loadGuest() {
+      if (!tg || !tg.initData) {
+        titleEl.textContent = "Не удалось проверить Telegram";
+        subtitleEl.textContent = "Закройте и снова откройте приложение через бота.";
+        pointsEl.textContent = "0";
+        phoneEl.textContent = "Телефон: —";
+        renderQr("Нет данных Telegram");
+        return;
+      }
+
       try {
         hideStatus();
         cardEl.classList.add("loading");
 
-        const res = await fetch("/api/guest", {
+        const response = await fetch("/api/guest", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            initData: tg.initData || "",
-            user: tg.initDataUnsafe?.user || null,
-          }),
+            initData: tg.initData
+          })
         });
 
-        const data = await res.json();
+        const data = await response.json();
 
-        if (!res.ok || data.ok === false) {
-          throw new Error(data.error || "Не удалось загрузить карту");
+        if (data.ok && data.guest) {
+          renderGuest(data.guest);
+          return;
         }
 
-        const guest = normalizeGuest(data);
-        renderGuest(guest);
+        if (data.reason === "guest_not_found") {
+          renderGuestNotFound(data.telegram_user);
+          return;
+        }
+
+        throw new Error(data.error || "Не удалось загрузить карту");
       } catch (error) {
         console.error(error);
-        titleEl.textContent = "Привет!";
-        subtitleEl.textContent = "Пока не удалось загрузить карту.";
+
+        titleEl.textContent = "Ошибка загрузки";
+        subtitleEl.textContent = "Проверьте интернет и попробуйте снова.";
         pointsEl.textContent = "0";
         phoneEl.textContent = "Телефон: —";
-        qrEl.innerHTML = "";
+        tagEl.textContent = "QR-код временно недоступен";
+
+        renderQr("Ошибка загрузки карты");
         showStatus("Ошибка загрузки карты. Попробуйте открыть мини-приложение еще раз.", true);
       } finally {
         cardEl.classList.remove("loading");
@@ -377,17 +454,20 @@
     shareBtn.addEventListener("click", () => {
       hideStatus();
 
-      if (!tg.requestContact) {
-        showStatus("На этом устройстве запрос номера телефона недоступен.", true);
+      if (!tg) {
+        showStatus("Откройте приложение внутри Telegram, чтобы поделиться номером телефона.", true);
         return;
       }
 
-      tg.requestContact(function (shared) {
+      if (!tg.requestContact) {
+        showStatus("На этом устройстве запрос номера телефона недоступен. Обновите Telegram и попробуйте снова.", true);
+        return;
+      }
+
+      tg.requestContact(function(shared) {
         if (shared) {
-          showStatus("Номер телефона отправлен. Обновляем данные...");
-          setTimeout(() => {
-            loadGuest();
-          }, 1500);
+          showStatus("Номер телефона отправлен. Обновляем карту...");
+          setTimeout(loadGuest, 2000);
         } else {
           showStatus("Вы не поделились номером телефона.", true);
         }
@@ -397,8 +477,6 @@
     howBtn.addEventListener("click", () => {
       howBox.classList.toggle("show");
     });
-
-    loadGuest();
   </script>
 </body>
 </html>
