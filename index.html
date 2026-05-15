@@ -238,6 +238,39 @@
       margin: 0 0 16px;
     }
 
+    .event-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 18px;
+      margin-top: 12px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.05);
+    }
+
+    .event-date {
+      display: inline-block;
+      background: var(--button-dark);
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .event-title {
+      font-size: 21px;
+      font-weight: 850;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .event-text {
+      font-size: 15px;
+      line-height: 1.45;
+      color: #5f584f;
+      margin: 0;
+    }
+
     .btn {
       width: 100%;
       border: none;
@@ -367,7 +400,7 @@
           <div class="label">Давай Покрепче</div>
           <h1 class="title">Всё нужное — в одном месте</h1>
           <p class="subtitle">
-            Карта гостя, меню, бронь, отзывы и соцсети. Без лишних поисков.
+            Карта гостя, меню, бронь, афиша, отзывы и соцсети. Без лишних поисков.
           </p>
         </div>
       </div>
@@ -381,6 +414,11 @@
         <button class="menu-btn" onclick="openExternal('https://davaipokrepche.ru/menu')">
           <div class="menu-btn-title">Посмотреть меню</div>
           <div class="menu-btn-text">Еда, бар, напитки и всё, что хочется заказать</div>
+        </button>
+
+        <button class="menu-btn" onclick="showScreen('eventsScreen')">
+          <div class="menu-btn-title">Мероприятия месяца</div>
+          <div class="menu-btn-text">Афиша, вечеринки, музыка и поводы зайти</div>
         </button>
 
         <button class="menu-btn" onclick="showScreen('bookingScreen')">
@@ -434,6 +472,49 @@
       <button class="btn btn-secondary" onclick="loadGuest()">
         Обновить карту
       </button>
+    </div>
+
+    <div id="eventsScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+      <div class="section-card">
+        <h2 class="section-title">Мероприятия месяца</h2>
+        <p class="section-text">
+          Здесь будет афиша ближайших событий. Заходите, выбирайте вечер и бронируйте стол заранее.
+        </p>
+
+        <div class="event-card">
+          <div class="event-date">Каждую пятницу</div>
+          <div class="event-title">Вечер с музыкой</div>
+          <p class="event-text">
+            Атмосферный вечер, бар, кухня и тот самый повод собрать друзей.
+          </p>
+        </div>
+
+        <div class="event-card">
+          <div class="event-date">Каждую субботу</div>
+          <div class="event-title">Большой вечер в Давай Покрепче</div>
+          <p class="event-text">
+            Суббота создана не для дивана. Бронируйте стол — будет вкусно и шумно.
+          </p>
+        </div>
+
+        <div class="event-card">
+          <div class="event-date">Скоро</div>
+          <div class="event-title">Новая афиша месяца</div>
+          <p class="event-text">
+            Как только появится расписание, мы добавим сюда даты, время и детали мероприятий.
+          </p>
+        </div>
+
+        <button class="btn btn-primary" onclick="showScreen('bookingScreen')">
+          Забронировать стол
+        </button>
+
+        <button class="btn btn-secondary" onclick="openExternal('https://t.me/davaipokrepchekrd')">
+          Смотреть анонсы в Telegram
+        </button>
+      </div>
     </div>
 
     <div id="bookingScreen" class="screen">
