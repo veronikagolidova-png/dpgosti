@@ -6,7 +6,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover"
   />
-  <title>Карта гостя</title>
+  <title>Давай Покрепче</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -18,6 +18,7 @@
       --text: #ffffff;
       --muted: #a8a8ad;
       --cream: #d9ccb7;
+      --cream-light: #f2eadf;
       --cream-dark: #4b4034;
       --button-dark: #1d1d20;
       --button-light: #ddd2c0;
@@ -44,6 +45,105 @@
       padding: 20px 16px 32px;
     }
 
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, #111112 0%, #050505 100%);
+      color: var(--text);
+      border-radius: 34px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -120px;
+      right: -80px;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 70%
+      );
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-size: 36px;
+      line-height: 1.05;
+      font-weight: 850;
+      margin: 0 0 14px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      line-height: 1.4;
+      color: #e7e7ea;
+      margin: 0;
+    }
+
+    .menu-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .menu-btn {
+      width: 100%;
+      border: none;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.74);
+      padding: 18px;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .menu-btn.dark {
+      background: var(--button-dark);
+      color: #fff;
+    }
+
+    .menu-btn-title {
+      font-size: 20px;
+      font-weight: 850;
+      margin-bottom: 5px;
+    }
+
+    .menu-btn-text {
+      font-size: 15px;
+      color: #6c655d;
+      line-height: 1.35;
+    }
+
+    .menu-btn.dark .menu-btn-text {
+      color: #b8b8bd;
+    }
+
     .card {
       position: relative;
       overflow: hidden;
@@ -52,6 +152,7 @@
       border-radius: 34px;
       padding: 24px 20px 26px;
       box-shadow: var(--shadow);
+      margin-bottom: 16px;
     }
 
     .card::before {
@@ -73,27 +174,6 @@
     .card-content {
       position: relative;
       z-index: 2;
-    }
-
-    .label {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-
-    .title {
-      font-size: 36px;
-      line-height: 1.05;
-      font-weight: 800;
-      margin: 0 0 14px;
-      letter-spacing: -0.03em;
-    }
-
-    .subtitle {
-      font-size: 18px;
-      line-height: 1.4;
-      color: #e7e7ea;
-      margin-bottom: 24px;
     }
 
     .points {
@@ -124,7 +204,7 @@
       padding: 10px 16px;
       border-radius: 999px;
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 650;
       margin-bottom: 18px;
     }
 
@@ -153,15 +233,38 @@
       text-align: center;
     }
 
+    .section-card {
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 28px;
+      line-height: 1.1;
+      font-weight: 850;
+      letter-spacing: -0.03em;
+      margin: 0 0 10px;
+    }
+
+    .section-text {
+      font-size: 16px;
+      line-height: 1.45;
+      color: #5f584f;
+      margin: 0 0 16px;
+    }
+
     .btn {
       width: 100%;
       border: none;
       border-radius: 22px;
-      padding: 20px 18px;
-      font-size: 18px;
+      padding: 18px;
+      font-size: 17px;
       font-weight: 800;
       cursor: pointer;
-      margin-top: 16px;
+      margin-top: 12px;
     }
 
     .btn-primary {
@@ -172,6 +275,22 @@
     .btn-secondary {
       background: var(--button-light);
       color: #1f1f22;
+    }
+
+    .btn-white {
+      background: #ffffff;
+      color: #111;
+    }
+
+    .back-btn {
+      border: none;
+      background: transparent;
+      color: #4b4034;
+      font-size: 16px;
+      font-weight: 750;
+      margin: 0 0 14px;
+      padding: 8px 2px;
+      cursor: pointer;
     }
 
     .status {
@@ -193,27 +312,36 @@
       color: var(--danger-text);
     }
 
-    .info-box {
-      margin-top: 16px;
-      background: rgba(255, 255, 255, 0.72);
-      border-radius: 18px;
-      padding: 16px;
-      font-size: 15px;
-      line-height: 1.5;
-      display: none;
-    }
-
-    .info-box.show {
-      display: block;
-    }
-
     .loading {
       opacity: 0.7;
     }
 
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .input {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      background: #ffffff;
+      padding: 16px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: #8d877f;
+    }
+
+    textarea.input {
+      min-height: 96px;
+      resize: vertical;
+    }
+
     @media (max-width: 430px) {
       .title {
-        font-size: 30px;
+        font-size: 31px;
       }
 
       .points {
@@ -230,48 +358,174 @@
         width: 200px;
         height: 200px;
       }
+
+      .section-title {
+        font-size: 25px;
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="app">
-    <div class="card" id="card">
-      <div class="card-content">
-        <div class="label">Ваша бонусная карта</div>
-
-        <h1 class="title" id="title">Загружаем карту...</h1>
-        <div class="subtitle" id="subtitle">Проверяем ваши данные.</div>
-
-        <div class="points" id="points">0</div>
-        <div class="points-caption">баллов на счете</div>
-
-        <div class="phone" id="phone">Телефон: —</div>
-
-        <div class="tag" id="tag">QR-код по номеру телефона</div>
-
-        <div class="qr-box">
-          <img id="qrImage" class="qr-img" alt="QR-код карты" />
+    <div id="homeScreen" class="screen active">
+      <div class="hero">
+        <div class="hero-content">
+          <div class="label">Давай Покрепче</div>
+          <h1 class="title">Всё нужное — в одном месте</h1>
+          <p class="subtitle">
+            Карта гостя, меню, бронь, отзывы и соцсети. Без лишних поисков.
+          </p>
         </div>
+      </div>
 
-        <div class="qr-note">
-          Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
-        </div>
+      <div class="menu-grid">
+        <button class="menu-btn dark" onclick="showScreen('cardScreen')">
+          <div class="menu-btn-title">Моя карта</div>
+          <div class="menu-btn-text">Баллы, QR-код и бонусная карта гостя</div>
+        </button>
+
+        <button class="menu-btn" onclick="openExternal('https://davaipokrepche.ru/menu')">
+          <div class="menu-btn-title">Посмотреть меню</div>
+          <div class="menu-btn-text">Еда, бар, напитки и всё, что хочется заказать</div>
+        </button>
+
+        <button class="menu-btn" onclick="showScreen('bookingScreen')">
+          <div class="menu-btn-title">Забронировать стол</div>
+          <div class="menu-btn-text">Оставьте заявку — администратор свяжется с вами</div>
+        </button>
+
+        <button class="menu-btn" onclick="showScreen('reviewsScreen')">
+          <div class="menu-btn-title">Оставить отзыв</div>
+          <div class="menu-btn-text">Выберите филиал и поделитесь впечатлением</div>
+        </button>
+
+        <button class="menu-btn" onclick="showScreen('socialScreen')">
+          <div class="menu-btn-title">Соцсети</div>
+          <div class="menu-btn-text">Instagram, Telegram-канал и VK</div>
+        </button>
       </div>
     </div>
 
-    <button class="btn btn-primary" id="shareBtn">
-      Поделиться номером телефона
-    </button>
+    <div id="cardScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
-    <button class="btn btn-secondary" id="howBtn">
-      Как это работает?
-    </button>
+      <div class="card" id="card">
+        <div class="card-content">
+          <div class="label">Ваша бонусная карта</div>
 
-    <div class="info-box" id="howBox">
-      1. Нажмите «Поделиться номером телефона».<br />
-      2. Бот свяжет ваш Telegram с картой гостя.<br />
-      3. После этого карта и бонусы будут отображаться автоматически.
+          <h1 class="title" id="title">Загружаем карту...</h1>
+          <div class="subtitle" id="subtitle">Проверяем ваши данные.</div>
+
+          <div class="points" id="points">0</div>
+          <div class="points-caption">баллов на счете</div>
+
+          <div class="phone" id="phone">Телефон: —</div>
+
+          <div class="tag" id="tag">QR-код по номеру телефона</div>
+
+          <div class="qr-box">
+            <img id="qrImage" class="qr-img" alt="QR-код карты" />
+          </div>
+
+          <div class="qr-note">
+            Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="shareBtn">
+        Поделиться номером телефона
+      </button>
+
+      <button class="btn btn-secondary" onclick="loadGuest()">
+        Обновить карту
+      </button>
+    </div>
+
+    <div id="bookingScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+      <div class="section-card">
+        <h2 class="section-title">Забронировать стол</h2>
+        <p class="section-text">
+          Оставьте данные, а администратор свяжется с вами для подтверждения брони.
+        </p>
+
+        <div class="form-group">
+          <input class="input" id="bookingName" placeholder="Ваше имя" />
+        </div>
+
+        <div class="form-group">
+          <input class="input" id="bookingPhone" placeholder="Телефон" />
+        </div>
+
+        <div class="form-group">
+          <input class="input" id="bookingDate" type="date" />
+        </div>
+
+        <div class="form-group">
+          <input class="input" id="bookingTime" type="time" />
+        </div>
+
+        <div class="form-group">
+          <input class="input" id="bookingGuests" type="number" min="1" placeholder="Количество гостей" />
+        </div>
+
+        <div class="form-group">
+          <textarea class="input" id="bookingComment" placeholder="Комментарий: пожелания по столику, повод, детали"></textarea>
+        </div>
+
+        <button class="btn btn-primary" onclick="bookingSoon()">
+          Отправить заявку
+        </button>
+
+        <p class="section-text" style="margin-top: 14px;">
+          Сейчас форма уже готова визуально. Следующим шагом подключим отправку заявок в Telegram-группу администраторов.
+        </p>
+      </div>
+    </div>
+
+    <div id="reviewsScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+      <div class="section-card">
+        <h2 class="section-title">Оставить отзыв</h2>
+        <p class="section-text">
+          Выберите филиал, в котором были. Нам важно знать, как всё прошло.
+        </p>
+
+        <button class="btn btn-primary" onclick="openExternal('https://taplink.cc/davaipokrepche.krd/p/1075a07/')">
+          40 лет Победы 148/2
+        </button>
+
+        <button class="btn btn-secondary" onclick="openExternal('https://taplink.cc/davaipokrepche.krd/p/10759c4/')">
+          Северная 299А
+        </button>
+      </div>
+    </div>
+
+    <div id="socialScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+      <div class="section-card">
+        <h2 class="section-title">Соцсети</h2>
+        <p class="section-text">
+          Подписывайтесь, чтобы не пропустить афиши, новости и всё вкусное.
+        </p>
+
+        <button class="btn btn-primary" onclick="openExternal('https://instagram.com/davaipokrepche.krd?igshid=MzRlODBiNWFlZA==')">
+          Instagram
+        </button>
+
+        <button class="btn btn-secondary" onclick="openExternal('https://t.me/davaipokrepchekrd')">
+          Telegram-канал
+        </button>
+
+        <button class="btn btn-white" onclick="openExternal('https://vk.com/davaipokrepchekrd')">
+          VK
+        </button>
+      </div>
     </div>
 
     <div class="status" id="status"></div>
@@ -287,8 +541,6 @@
     const tagEl = document.getElementById("tag");
     const qrImageEl = document.getElementById("qrImage");
     const statusEl = document.getElementById("status");
-    const howBtn = document.getElementById("howBtn");
-    const howBox = document.getElementById("howBox");
     const shareBtn = document.getElementById("shareBtn");
     const cardEl = document.getElementById("card");
 
@@ -304,13 +556,44 @@
         tg.setHeaderColor("#e9e3d8");
       }
 
+      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+
+      if (user && user.first_name) {
+        const bookingName = document.getElementById("bookingName");
+        if (bookingName) bookingName.value = user.first_name;
+      }
+
       loadGuest();
-    } else {
-      titleEl.textContent = "Откройте в Telegram";
-      subtitleEl.textContent = "Это приложение работает внутри Telegram Mini App.";
-      pointsEl.textContent = "0";
-      phoneEl.textContent = "Телефон: —";
-      renderQr("Откройте карту в Telegram");
+    }
+
+    function showScreen(screenId) {
+      const screens = document.querySelectorAll(".screen");
+
+      screens.forEach((screen) => {
+        screen.classList.remove("active");
+      });
+
+      document.getElementById(screenId).classList.add("active");
+
+      hideStatus();
+
+      if (screenId === "cardScreen") {
+        loadGuest();
+      }
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    function openExternal(url) {
+      if (tg && tg.openLink) {
+        tg.openLink(url);
+        return;
+      }
+
+      window.open(url, "_blank");
     }
 
     function showStatus(text, isError = false) {
@@ -384,6 +667,11 @@
       }
 
       renderQr(normalizedGuest.qr_value);
+
+      const bookingPhone = document.getElementById("bookingPhone");
+      if (bookingPhone && normalizedGuest.phone && normalizedGuest.phone !== "не указан") {
+        bookingPhone.value = normalizedGuest.phone;
+      }
     }
 
     function renderGuestNotFound(telegramUser) {
@@ -451,6 +739,10 @@
       }
     }
 
+    function bookingSoon() {
+      showStatus("Форма бронирования почти готова. Следующим шагом подключим отправку заявок администраторам в Telegram-группу.");
+    }
+
     shareBtn.addEventListener("click", () => {
       hideStatus();
 
@@ -472,10 +764,6 @@
           showStatus("Вы не поделились номером телефона.", true);
         }
       });
-    });
-
-    howBtn.addEventListener("click", () => {
-      howBox.classList.toggle("show");
     });
   </script>
 </body>
