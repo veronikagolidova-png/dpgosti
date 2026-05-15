@@ -17,6 +17,11 @@ module.exports = async function handler(req, res) {
   const update = req.body;
 
   try {
+    if (update.callback_query) {
+      await handleCallbackQuery(BOT_TOKEN, update.callback_query);
+      return res.status(200).json({ ok: true });
+    }
+
     const message = update.message;
 
     if (!message) {
@@ -111,6 +116,67 @@ module.exports = async function handler(req, res) {
   }
 };
 
+async function handleCallbackQuery(token, callbackQuery) {
+  const callbackId = callbackQuery.id;
+  const data = callbackQuery.data || "";
+  const admin = callbackQuery.from || {};
+  const adminName =
+    admin.first_name ||
+    admin.username ||
+    "администратор";
+
+  if (data === "booking_done") {
+    const message = callbackQuery.message;
+
+    if (!message) {
+      await answerCallbackQuery(token, callbackId, "Не удалось обновить бронь");
+      return;
+    }
+
+    const chatId = message.chat.id;
+    const messageId = message.message_id;
+
+    const oldKeyboard = message.reply_markup?.inline_keyboard || [];
+
+    const newKeyboard = oldKeyboard.map((row) => {
+      return row.map((button) => {
+        if (button.callback_data === "booking_done") {
+          return {
+            text: `✅ Передала: ${adminName}`,
+            callback_data: "booking_done_already"
+          };
+        }
+
+        return button;
+      });
+    });
+
+    await editTelegramMessageReplyMarkup(token, chatId, messageId, {
+      inline_keyboard: newKeyboard
+    });
+
+    await answerCallbackQuery(
+      token,
+      callbackId,
+      "Отметили: бронь передана ✅"
+    );
+
+    return;
+  }
+
+  if (data === "booking_done_already") {
+    await answerCallbackQuery(
+      token,
+      callbackId,
+      "Эта бронь уже отмечена ✅"
+    );
+
+    return;
+  }
+
+  await answerCallbackQuery(token, callbackId, "Команда получена");
+}
+
 function normalizePhone(phone) {
   let digits = String(phone || "").replace(/\D/g, "");
 
@@ -176,5 +242,37 @@ async function sendTelegramMessage(token, chatId, text, replyMarkup = null) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(body)
+  });
+}
+
+async function answerCallbackQuery(token, callbackQueryId, text) {
+  const url = `https://api.telegram.org/bot${token}/answerCallbackQuery`;
+
+  await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      callback_query_id: callbackQueryId,
+      text,
+      show_alert: false
+    })
+  });
+}
+
+async function editTelegramMessageReplyMarkup(token, chatId, messageId, replyMarkup) {
+  const url = `https://api.telegram.org/bot${token}/editMessageReplyMarkup`;
+
+  await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      message_id: messageId,
+      reply_markup: replyMarkup
+    })
   });
 }
