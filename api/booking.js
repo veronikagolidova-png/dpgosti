@@ -66,7 +66,21 @@ module.exports = async function handler(req, res) {
       `Telegram ID: ${telegramUser.id || "—"}\n\n` +
       `Источник: Mini App`;
 
-    await sendTelegramMessage(BOT_TOKEN, BOOKING_CHAT_ID, message);
+    const telegramResult = await sendTelegramMessage(
+      BOT_TOKEN,
+      BOOKING_CHAT_ID,
+      message
+    );
+
+    if (!telegramResult.ok) {
+      console.error("Telegram send error:", telegramResult);
+
+      return res.status(500).json({
+        ok: false,
+        error: "Telegram не принял сообщение",
+        telegram_error: telegramResult
+      });
+    }
 
     return res.status(200).json({
       ok: true,
@@ -77,7 +91,8 @@ module.exports = async function handler(req, res) {
 
     return res.status(500).json({
       ok: false,
-      error: "Booking endpoint failed"
+      error: "Booking endpoint failed",
+      details: String(error.message || error)
     });
   }
 };
@@ -139,7 +154,7 @@ function validateTelegramInitData(initData, botToken) {
 async function sendTelegramMessage(token, chatId, text) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-  await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -149,4 +164,8 @@ async function sendTelegramMessage(token, chatId, text) {
       text
     })
   });
+
+  const data = await response.json();
+
+  return data;
 }
