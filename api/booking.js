@@ -53,6 +53,7 @@ module.exports = async function handler(req, res) {
     }
 
     const telegramUser = validation.user || {};
+    const guestLink = getTelegramUserLink(telegramUser);
 
     const message =
       `🍾 Новая бронь\n\n` +
@@ -66,10 +67,31 @@ module.exports = async function handler(req, res) {
       `Telegram ID: ${telegramUser.id || "—"}\n\n` +
       `Источник: Mini App`;
 
+    const inlineKeyboard = [];
+
+    if (guestLink) {
+      inlineKeyboard.push([
+        {
+          text: "Написать гостю",
+          url: guestLink
+        }
+      ]);
+    }
+
+    inlineKeyboard.push([
+      {
+        text: "✅ Бронь передала",
+        callback_data: "booking_done"
+      }
+    ]);
+
     const telegramResult = await sendTelegramMessage(
       BOT_TOKEN,
       BOOKING_CHAT_ID,
-      message
+      message,
+      {
+        inline_keyboard: inlineKeyboard
+      }
     );
 
     if (!telegramResult.ok) {
@@ -99,6 +121,18 @@ module.exports = async function handler(req, res) {
 
 function cleanText(value) {
   return String(value || "").trim();
+}
+
+function getTelegramUserLink(user) {
+  if (user && user.username) {
+    return `https://t.me/${user.username}`;
+  }
+
+  if (user && user.id) {
+    return `tg://user?id=${user.id}`;
+  }
+
+  return null;
 }
 
 function validateTelegramInitData(initData, botToken) {
@@ -151,18 +185,24 @@ function validateTelegramInitData(initData, botToken) {
   };
 }
 
-async function sendTelegramMessage(token, chatId, text) {
+async function sendTelegramMessage(token, chatId, text, replyMarkup = null) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+  const body = {
+    chat_id: chatId,
+    text
+  };
+
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
 
   const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text
-    })
+    body: JSON.stringify(body)
   });
 
   const data = await response.json();
