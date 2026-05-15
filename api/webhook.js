@@ -24,6 +24,17 @@ module.exports = async function handler(req, res) {
     }
 
     const chatId = message.chat.id;
+    const text = (message.text || "").trim().toLowerCase();
+
+    if (text === "/id" || text.startsWith("/id@")) {
+      await sendTelegramMessage(
+        BOT_TOKEN,
+        chatId,
+        `ID этого чата:\n${chatId}`
+      );
+
+      return res.status(200).json({ ok: true });
+    }
 
     if (message.contact) {
       const rawPhone = message.contact.phone_number;
@@ -64,19 +75,30 @@ module.exports = async function handler(req, res) {
       await sendTelegramMessage(
         BOT_TOKEN,
         chatId,
-        `Спасибо, ${firstName || "гость"}! Номер ${phone} сохранили ✅\n\nТеперь мы сможем привязать вашу карту лояльности и подтянуть баллы.`
+        `Спасибо, ${firstName || "гость"}! Номер ${phone} сохранили ✅\n\nТеперь ваша карта будет открываться автоматически.`
       );
 
       return res.status(200).json({ ok: true });
     }
 
-    if (message.text === "/start") {
+    if (text === "/start" || text === "start") {
       await sendTelegramMessage(
         BOT_TOKEN,
         chatId,
-        "Добро пожаловать! Нажмите кнопку «Моя бонусная карта», чтобы открыть карту лояльности."
+        "Привет! Нажмите кнопку «Открыть меню» внизу, чтобы посмотреть карту гостя, меню, бронь, отзывы и соцсети.",
+        {
+          remove_keyboard: true
+        }
       );
+
+      return res.status(200).json({ ok: true });
     }
+
+    await sendTelegramMessage(
+      BOT_TOKEN,
+      chatId,
+      "Нажмите кнопку «Открыть меню» внизу, чтобы перейти в гостевой раздел."
+    );
 
     return res.status(200).json({ ok: true });
   } catch (error) {
@@ -136,17 +158,23 @@ async function saveGuestToSupabase({ supabaseUrl, supabaseKey, guest }) {
   };
 }
 
-async function sendTelegramMessage(token, chatId, text) {
+async function sendTelegramMessage(token, chatId, text, replyMarkup = null) {
   const url = `https://api.telegram.org/bot${token}/sendMessage`;
+
+  const body = {
+    chat_id: chatId,
+    text
+  };
+
+  if (replyMarkup) {
+    body.reply_markup = replyMarkup;
+  }
 
   await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text
-    })
+    body: JSON.stringify(body)
   });
 }
