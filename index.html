@@ -4,1034 +4,811 @@
   <meta charset="UTF-8" />
   <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   />
   <title>Давай Покрепче</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    :root {
-      --bg: #e9e3d8;
-      --card: #0b0b0c;
-      --text: #ffffff;
-      --muted: #a8a8ad;
-      --cream: #d9ccb7;
-      --cream-light: #f2eadf;
-      --cream-dark: #4b4034;
-      --button-dark: #1d1d20;
-      --button-light: #ddd2c0;
-      --danger-bg: #ffe3e3;
-      --danger-text: #7d1010;
-      --success-bg: #e5f7e9;
-      --success-text: #145c25;
-      --shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-    }
-
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      background: #f3eee5;
+      color: #151515;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: #111;
+    }
+
+    body {
+      min-height: 100vh;
     }
 
     .app {
-      max-width: 480px;
+      max-width: 520px;
       margin: 0 auto;
-      padding: 20px 16px 32px;
+      padding: 18px 16px 32px;
     }
 
-    .screen {
-      display: none;
-    }
-
-    .screen.active {
-      display: block;
+    .hidden {
+      display: none !important;
     }
 
     .hero {
-      background: linear-gradient(180deg, #111112 0%, #050505 100%);
-      color: var(--text);
-      border-radius: 34px;
-      padding: 26px 22px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
       position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before,
-    .card::before {
-      content: "";
-      position: absolute;
-      top: -120px;
-      right: -80px;
-      width: 240px;
+      width: 100%;
       height: 240px;
-      background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0) 70%
-      );
-      border-radius: 50%;
-      pointer-events: none;
+      border-radius: 26px;
+      overflow: hidden;
+      background: #ddd;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.10);
+      margin-bottom: 18px;
     }
 
-    .hero-content,
-    .card-content {
-      position: relative;
-      z-index: 2;
+    .hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.72);
     }
 
-    .label {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 12px;
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 22px 18px;
+      background: linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.08));
     }
 
-    .title {
-      font-size: 36px;
-      line-height: 1.05;
-      font-weight: 850;
-      margin: 0 0 14px;
-      letter-spacing: -0.04em;
+    .hero-title {
+      color: #fff;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 8px 0;
     }
 
-    .subtitle {
-      font-size: 18px;
+    .hero-subtitle {
+      color: rgba(255,255,255,0.92);
+      font-size: 16px;
       line-height: 1.4;
-      color: #e7e7ea;
       margin: 0;
     }
 
-    .menu-grid {
-      display: grid;
-      gap: 12px;
+    .section {
       margin-top: 16px;
     }
 
-    .menu-btn {
-      width: 100%;
-      border: none;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.74);
-      padding: 18px;
-      text-align: left;
-      cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    .card-black {
+      background: #111111;
+      color: #ffffff;
+      border-radius: 28px;
+      padding: 22px 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
     }
 
-    .menu-btn.dark {
-      background: var(--button-dark);
-      color: #fff;
+    .card-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
     }
 
-    .menu-btn-title {
-      font-size: 20px;
-      font-weight: 850;
-      margin-bottom: 5px;
+    .card-name {
+      font-size: 33px;
+      line-height: 1.08;
+      font-weight: 800;
+      margin: 0 0 10px 0;
     }
 
-    .menu-btn-text {
-      font-size: 15px;
-      color: #6c655d;
-      line-height: 1.35;
-    }
-
-    .menu-btn.dark .menu-btn-text {
-      color: #b8b8bd;
-    }
-
-    .card {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(180deg, #111112 0%, #050505 100%);
-      color: var(--text);
-      border-radius: 34px;
-      padding: 24px 20px 26px;
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
+    .card-text {
+      color: rgba(255,255,255,0.88);
+      font-size: 18px;
+      line-height: 1.45;
+      margin-bottom: 18px;
     }
 
     .points {
-      font-size: 76px;
+      font-size: 64px;
       line-height: 1;
       font-weight: 900;
-      letter-spacing: -0.05em;
-      margin: 0;
+      margin: 10px 0 6px 0;
     }
 
-    .points-caption {
-      margin-top: 8px;
-      color: var(--muted);
+    .points-label {
       font-size: 18px;
-      margin-bottom: 22px;
+      color: rgba(255,255,255,0.82);
+      margin-bottom: 14px;
     }
 
     .phone {
       font-size: 18px;
-      color: #f2f2f4;
+      color: rgba(255,255,255,0.88);
       margin-bottom: 16px;
     }
 
-    .tag {
+    .qr-title {
       display: inline-block;
-      background: var(--cream);
-      color: var(--cream-dark);
+      background: #e6dcc9;
+      color: #151515;
       padding: 10px 16px;
       border-radius: 999px;
       font-size: 15px;
-      font-weight: 650;
-      margin-bottom: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .qr-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 8px 0 16px;
     }
 
     .qr-box {
-      width: 100%;
+      width: 230px;
+      height: 230px;
+      border-radius: 26px;
       background: #ffffff;
-      border-radius: 28px;
-      padding: 18px;
       display: flex;
-      justify-content: center;
       align-items: center;
-      min-height: 260px;
-      margin-bottom: 18px;
+      justify-content: center;
+      padding: 16px;
     }
 
-    .qr-img {
-      width: 220px;
-      height: 220px;
+    .qr-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       display: block;
     }
 
-    .qr-note {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.45;
+    .qr-caption {
+      color: rgba(255,255,255,0.72);
       text-align: center;
-    }
-
-    .section-card {
-      background: rgba(255, 255, 255, 0.78);
-      border-radius: 28px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-      margin-bottom: 14px;
-    }
-
-    .section-title {
-      font-size: 28px;
-      line-height: 1.1;
-      font-weight: 850;
-      letter-spacing: -0.03em;
-      margin: 0 0 10px;
-    }
-
-    .section-text {
-      font-size: 16px;
-      line-height: 1.45;
-      color: #5f584f;
-      margin: 0 0 16px;
-    }
-
-    .events-list {
-      display: grid;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .event-card {
-      background: #ffffff;
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.05);
-    }
-
-    .event-date {
-      display: inline-block;
-      background: var(--button-dark);
-      color: #ffffff;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 14px;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .event-title {
-      font-size: 21px;
-      font-weight: 850;
-      line-height: 1.15;
-      margin-bottom: 8px;
-    }
-
-    .event-branch {
-      font-size: 14px;
-      color: #8a8178;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-
-    .event-text {
       font-size: 15px;
-      line-height: 1.45;
-      color: #5f584f;
-      margin: 0;
+      line-height: 1.5;
+      margin-top: 6px;
     }
 
-    .btn {
-      width: 100%;
+    .actions {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .action-btn {
       border: none;
-      border-radius: 22px;
-      padding: 18px;
-      font-size: 17px;
+      outline: none;
+      width: 100%;
+      background: #e6dcc9;
+      color: #111111;
+      font-size: 18px;
       font-weight: 800;
+      padding: 18px 16px;
+      border-radius: 20px;
       cursor: pointer;
-      margin-top: 12px;
+      text-align: center;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
     }
 
-    .btn-primary {
-      background: var(--button-dark);
+    .action-btn.dark {
+      background: #1b1b1b;
       color: #ffffff;
     }
 
-    .btn-secondary {
-      background: var(--button-light);
-      color: #1f1f22;
+    .action-btn:active {
+      transform: scale(0.99);
     }
 
-    .btn-white {
-      background: #ffffff;
-      color: #111;
+    .screen {
+      position: fixed;
+      inset: 0;
+      background: #f3eee5;
+      z-index: 50;
+      overflow-y: auto;
+      padding: 18px 16px 30px;
     }
 
-    .btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
+    .screen-inner {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .screen-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
     .back-btn {
       border: none;
-      background: transparent;
-      color: #4b4034;
+      background: #e6dcc9;
+      color: #111;
+      font-weight: 800;
       font-size: 16px;
-      font-weight: 750;
-      margin: 0 0 14px;
-      padding: 8px 2px;
+      padding: 12px 16px;
+      border-radius: 16px;
       cursor: pointer;
     }
 
-    .status {
-      margin-top: 16px;
-      background: rgba(255, 255, 255, 0.82);
-      border-radius: 18px;
-      padding: 14px 16px;
-      font-size: 15px;
-      line-height: 1.45;
-      display: none;
+    .screen-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin: 0;
+      color: #151515;
+      flex: 1;
+      text-align: right;
     }
 
-    .status.show {
-      display: block;
-    }
-
-    .status.error {
-      background: var(--danger-bg);
-      color: var(--danger-text);
-    }
-
-    .status.success {
-      background: var(--success-bg);
-      color: var(--success-text);
-    }
-
-    .loading {
-      opacity: 0.7;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .input {
-      width: 100%;
-      border: none;
-      border-radius: 18px;
+    .event-card,
+    .social-card,
+    .review-card,
+    .booking-card {
       background: #ffffff;
-      padding: 16px;
-      font-size: 16px;
-      outline: none;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.07);
+      margin-bottom: 14px;
+    }
+
+    .event-date {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #efe7d8;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 12px;
       color: #111;
     }
 
-    .input::placeholder {
-      color: #8d877f;
+    .event-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      color: #111;
     }
 
-    textarea.input {
-      min-height: 96px;
+    .event-branch {
+      font-size: 14px;
+      font-weight: 700;
+      color: #776d5b;
+      margin-bottom: 12px;
+    }
+
+    .event-text {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #2a2a2a;
+      margin-bottom: 14px;
+    }
+
+    .empty-box {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.07);
+      font-size: 16px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid #ddd3c2;
+      background: #faf7f1;
+      border-radius: 16px;
+      padding: 14px 14px;
+      font-size: 16px;
+      color: #111;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .field textarea {
+      min-height: 100px;
       resize: vertical;
     }
 
-    @media (max-width: 430px) {
-      .title {
-        font-size: 31px;
-      }
+    .hint {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #6f6758;
+      line-height: 1.4;
+    }
 
-      .points {
-        font-size: 64px;
-      }
+    .loading {
+      font-size: 16px;
+      color: #4a4a4a;
+      text-align: center;
+      padding: 16px;
+    }
 
-      .subtitle,
-      .phone,
-      .points-caption {
-        font-size: 17px;
-      }
-
-      .qr-img {
-        width: 200px;
-        height: 200px;
-      }
-
-      .section-title {
-        font-size: 25px;
-      }
+    .footer-space {
+      height: 14px;
     }
   </style>
 </head>
-
 <body>
   <div class="app">
-    <div id="homeScreen" class="screen active">
+    <!-- ГЛАВНАЯ -->
+    <div id="homeScreen">
       <div class="hero">
-        <div class="hero-content">
-          <div class="label">Давай Покрепче</div>
-          <h1 class="title">Всё нужное — в одном месте</h1>
-          <p class="subtitle">
-            Карта гостя, меню, бронь, афиша, отзывы и соцсети. Без лишних поисков.
-          </p>
+        <img id="venuePhoto" src="" alt="Давай Покрепче" />
+        <div class="hero-overlay">
+          <h1 class="hero-title">ДАВАЙ ПОКРЕПЧЕ</h1>
+          <p class="hero-subtitle">место, куда хочется вернуться</p>
         </div>
       </div>
 
-      <div class="menu-grid">
-        <button class="menu-btn dark" onclick="showScreen('cardScreen')">
-          <div class="menu-btn-title">Моя карта</div>
-          <div class="menu-btn-text">Баллы, QR-код и бонусная карта гостя</div>
-        </button>
+      <div class="section">
+        <div class="card-black">
+          <div class="card-label">Ваша бонусная карта</div>
+          <h2 class="card-name" id="guestName">Привет!</h2>
+          <div class="card-text">Мы нашли вашу карту лояльности.</div>
 
-        <button class="menu-btn" onclick="openExternal('https://davaipokrepche.ru/menu')">
-          <div class="menu-btn-title">Посмотреть меню</div>
-          <div class="menu-btn-text">Еда, бар, напитки и всё, что хочется заказать</div>
-        </button>
+          <div class="points" id="guestPoints">0</div>
+          <div class="points-label">баллов на счёте</div>
 
-        <button class="menu-btn" onclick="showScreen('eventsScreen')">
-          <div class="menu-btn-title">Мероприятия месяца</div>
-          <div class="menu-btn-text">Афиша, вечеринки, музыка и поводы зайти</div>
-        </button>
+          <div class="phone" id="guestPhone">Телефон: —</div>
 
-        <button class="menu-btn" onclick="showScreen('bookingScreen')">
-          <div class="menu-btn-title">Забронировать стол</div>
-          <div class="menu-btn-text">Оставьте заявку — администратор свяжется с вами</div>
-        </button>
+          <div class="qr-title">QR-код по номеру телефона</div>
 
-        <button class="menu-btn" onclick="showScreen('reviewsScreen')">
-          <div class="menu-btn-title">Оставить отзыв</div>
-          <div class="menu-btn-text">Выберите филиал и поделитесь впечатлением</div>
-        </button>
-
-        <button class="menu-btn" onclick="showScreen('socialScreen')">
-          <div class="menu-btn-title">Соцсети</div>
-          <div class="menu-btn-text">Instagram, Telegram-канал и VK</div>
-        </button>
-      </div>
-    </div>
-
-    <div id="cardScreen" class="screen">
-      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
-
-      <div class="card" id="card">
-        <div class="card-content">
-          <div class="label">Ваша бонусная карта</div>
-
-          <h1 class="title" id="title">Загружаем карту...</h1>
-          <div class="subtitle" id="subtitle">Проверяем ваши данные.</div>
-
-          <div class="points" id="points">0</div>
-          <div class="points-caption">баллов на счете</div>
-
-          <div class="phone" id="phone">Телефон: —</div>
-
-          <div class="tag" id="tag">QR-код по номеру телефона</div>
-
-          <div class="qr-box">
-            <img id="qrImage" class="qr-img" alt="QR-код карты" />
+          <div class="qr-wrap">
+            <div class="qr-box">
+              <img id="qrImage" alt="QR-код" />
+            </div>
           </div>
 
-          <div class="qr-note">
+          <div class="qr-caption">
             Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
           </div>
         </div>
       </div>
 
-      <button class="btn btn-primary" id="shareBtn">
-        Поделиться номером телефона
-      </button>
-
-      <button class="btn btn-secondary" onclick="loadGuest()">
-        Обновить карту
-      </button>
-    </div>
-
-    <div id="eventsScreen" class="screen">
-      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
-
-      <div class="section-card">
-        <h2 class="section-title">Мероприятия месяца</h2>
-        <p class="section-text">
-          Афиша подтягивается автоматически. Если планы изменились — мы обновим всё здесь.
-        </p>
-
-        <div id="eventsList" class="events-list">
-          <div class="event-card">
-            <div class="event-date">Загружаем...</div>
-            <div class="event-title">Смотрим афишу</div>
-            <p class="event-text">
-              Сейчас подтянем ближайшие мероприятия.
-            </p>
-          </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="showScreen('bookingScreen')">
-          Забронировать стол
-        </button>
-
-        <button class="btn btn-secondary" onclick="openExternal('https://t.me/davaipokrepchekrd')">
-          Смотреть анонсы в Telegram
-        </button>
+      <div class="actions">
+        <button class="action-btn" onclick="scrollToCard()">Посмотреть карту</button>
+        <button class="action-btn" onclick="openMenu()">Посмотреть меню</button>
+        <button class="action-btn" onclick="openEvents()">Мероприятия месяца</button>
+        <button class="action-btn" onclick="openBooking()">Забронировать стол</button>
+        <button class="action-btn" onclick="openReviews()">Оставить отзыв</button>
+        <button class="action-btn" onclick="openSocials()">Соцсети</button>
       </div>
+
+      <div class="footer-space"></div>
     </div>
+  </div>
 
-    <div id="bookingScreen" class="screen">
-      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+  <!-- ЭКРАН МЕРОПРИЯТИЙ -->
+  <div id="eventsScreen" class="screen hidden">
+    <div class="screen-inner">
+      <div class="screen-head">
+        <button class="back-btn" onclick="closeEvents()">Назад</button>
+        <h3 class="screen-title">Мероприятия месяца</h3>
+      </div>
+      <div id="eventsContent" class="loading">Загружаем мероприятия...</div>
+    </div>
+  </div>
 
-      <div class="section-card">
-        <h2 class="section-title">Забронировать стол</h2>
-        <p class="section-text">
-          Оставьте данные, а администратор свяжется с вами для подтверждения брони.
-        </p>
+  <!-- ЭКРАН БРОНИ -->
+  <div id="bookingScreen" class="screen hidden">
+    <div class="screen-inner">
+      <div class="screen-head">
+        <button class="back-btn" onclick="closeBooking()">Назад</button>
+        <h3 class="screen-title">Бронь стола</h3>
+      </div>
 
-        <div class="form-group">
-          <input class="input" id="bookingName" placeholder="Ваше имя" />
+      <div class="booking-card">
+        <div class="field">
+          <label>Имя</label>
+          <input id="bookingName" type="text" placeholder="Ваше имя" />
         </div>
 
-        <div class="form-group">
-          <input class="input" id="bookingPhone" placeholder="Телефон" />
+        <div class="field">
+          <label>Телефон</label>
+          <input id="bookingPhone" type="text" placeholder="+7..." />
         </div>
 
-        <div class="form-group">
-          <select class="input" id="bookingBranch">
-            <option value="">Выберите филиал</option>
+        <div class="field">
+          <label>Филиал</label>
+          <select id="bookingBranch">
             <option value="40 лет Победы 148/2">40 лет Победы 148/2</option>
             <option value="Северная 299А">Северная 299А</option>
           </select>
         </div>
 
-        <div class="form-group">
-          <input class="input" id="bookingDate" type="date" />
+        <div class="field">
+          <label>Дата</label>
+          <input id="bookingDate" type="date" />
         </div>
 
-        <div class="form-group">
-          <input class="input" id="bookingTime" type="time" />
+        <div class="field">
+          <label>Время</label>
+          <input id="bookingTime" type="time" />
         </div>
 
-        <div class="form-group">
-          <input class="input" id="bookingGuests" type="number" min="1" placeholder="Количество гостей" />
+        <div class="field">
+          <label>Количество гостей</label>
+          <input id="bookingGuests" type="number" min="1" value="2" />
         </div>
 
-        <div class="form-group">
-          <textarea class="input" id="bookingComment" placeholder="Комментарий: пожелания по столику, повод, детали"></textarea>
+        <div class="field">
+          <label>Комментарий</label>
+          <textarea id="bookingComment" placeholder="Например: стол у окна, день рождения и т.д."></textarea>
         </div>
 
-        <button class="btn btn-primary" id="bookingSubmitBtn" onclick="sendBooking()">
-          Отправить заявку
-        </button>
+        <button class="action-btn dark" onclick="submitBooking()">Отправить бронь</button>
+        <div class="hint" id="bookingResult"></div>
       </div>
     </div>
+  </div>
 
-    <div id="reviewsScreen" class="screen">
-      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+  <!-- ЭКРАН ОТЗЫВОВ -->
+  <div id="reviewsScreen" class="screen hidden">
+    <div class="screen-inner">
+      <div class="screen-head">
+        <button class="back-btn" onclick="closeReviews()">Назад</button>
+        <h3 class="screen-title">Оставить отзыв</h3>
+      </div>
 
-      <div class="section-card">
-        <h2 class="section-title">Оставить отзыв</h2>
-        <p class="section-text">
-          Выберите филиал, в котором были. Нам важно знать, как всё прошло.
-        </p>
+      <div class="review-card">
+        <button class="action-btn" onclick="safeOpen(REVIEW_40_URL)">Отзывы 40 лет Победы 148/2</button>
+      </div>
 
-        <button class="btn btn-primary" onclick="openExternal('https://taplink.cc/davaipokrepche.krd/p/1075a07/')">
-          40 лет Победы 148/2
-        </button>
-
-        <button class="btn btn-secondary" onclick="openExternal('https://taplink.cc/davaipokrepche.krd/p/10759c4/')">
-          Северная 299А
-        </button>
+      <div class="review-card">
+        <button class="action-btn" onclick="safeOpen(REVIEW_SEV_URL)">Отзывы Северная 299А</button>
       </div>
     </div>
+  </div>
 
-    <div id="socialScreen" class="screen">
-      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+  <!-- ЭКРАН СОЦСЕТЕЙ -->
+  <div id="socialsScreen" class="screen hidden">
+    <div class="screen-inner">
+      <div class="screen-head">
+        <button class="back-btn" onclick="closeSocials()">Назад</button>
+        <h3 class="screen-title">Соцсети</h3>
+      </div>
 
-      <div class="section-card">
-        <h2 class="section-title">Соцсети</h2>
-        <p class="section-text">
-          Подписывайтесь, чтобы не пропустить афиши, новости и всё вкусное.
-        </p>
+      <div class="social-card">
+        <button class="action-btn" onclick="safeOpen(INSTAGRAM_URL)">Instagram</button>
+      </div>
 
-        <button class="btn btn-primary" onclick="openExternal('https://instagram.com/davaipokrepche.krd?igshid=MzRlODBiNWFlZA==')">
-          Instagram
-        </button>
+      <div class="social-card">
+        <button class="action-btn" onclick="safeOpen(TELEGRAM_CHANNEL_URL)">Telegram-канал</button>
+      </div>
 
-        <button class="btn btn-secondary" onclick="openExternal('https://t.me/davaipokrepchekrd')">
-          Telegram-канал
-        </button>
-
-        <button class="btn btn-white" onclick="openExternal('https://vk.com/davaipokrepchekrd')">
-          VK
-        </button>
+      <div class="social-card">
+        <button class="action-btn" onclick="safeOpen(VK_URL)">VK</button>
       </div>
     </div>
-
-    <div class="status" id="status"></div>
   </div>
 
   <script>
-    const tg = window.Telegram && window.Telegram.WebApp;
+    // =========================
+    // ВСЕ ССЫЛКИ И НАСТРОЙКИ
+    // =========================
 
-    const titleEl = document.getElementById("title");
-    const subtitleEl = document.getElementById("subtitle");
-    const pointsEl = document.getElementById("points");
-    const phoneEl = document.getElementById("phone");
-    const tagEl = document.getElementById("tag");
-    const qrImageEl = document.getElementById("qrImage");
-    const statusEl = document.getElementById("status");
-    const shareBtn = document.getElementById("shareBtn");
-    const cardEl = document.getElementById("card");
-    const bookingSubmitBtn = document.getElementById("bookingSubmitBtn");
-    const eventsListEl = document.getElementById("eventsList");
+    // СЮДА ВСТАВЬ ССЫЛКУ НА ФОТО ЗАВЕДЕНИЯ
+    // Можно поставить ссылку на картинку из интернета
+    // или позже положить фото в проект и указать путь, например: "./venue.jpg"
+    const VENUE_PHOTO_URL = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1400&auto=format&fit=crop";
 
-    if (tg) {
-      tg.ready();
-      tg.expand();
+    const MENU_URL = "https://davaipokrepche.ru/menu";
 
-      if (tg.setBackgroundColor) {
-        tg.setBackgroundColor("#e9e3d8");
-      }
+    const REVIEW_40_URL = "https://taplink.cc/davaipokrepche.krd/p/1075a07/";
+    const REVIEW_SEV_URL = "https://taplink.cc/davaipokrepche.krd/p/10759c4/";
 
-      if (tg.setHeaderColor) {
-        tg.setHeaderColor("#e9e3d8");
-      }
+    const INSTAGRAM_URL = "https://instagram.com/davaipokrepche.krd?igshid=MzRlODBiNWFlZA==";
+    const TELEGRAM_CHANNEL_URL = "https://t.me/davaipokrepchekrd";
+    const VK_URL = "https://vk.com/davaipokrepchekrd";
 
-      const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+    const tg = window.Telegram.WebApp;
+    let appGuest = null;
 
-      if (user && user.first_name) {
-        const bookingName = document.getElementById("bookingName");
-        if (bookingName) bookingName.value = user.first_name;
-      }
+    // =========================
+    // INIT
+    // =========================
 
-      loadGuest();
-      loadEvents();
-    } else {
-      loadEvents();
-    }
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor("#f3eee5");
+        tg.setBackgroundColor("#f3eee5");
+      } catch (e) {}
 
-    function showScreen(screenId) {
-      const screens = document.querySelectorAll(".screen");
+      document.getElementById("venuePhoto").src = VENUE_PHOTO_URL;
 
-      screens.forEach((screen) => {
-        screen.classList.remove("active");
-      });
+      await loadGuest();
+    });
 
-      document.getElementById(screenId).classList.add("active");
+    // =========================
+    // ЗАГРУЗКА ГОСТЯ
+    // =========================
 
-      hideStatus();
+    async function loadGuest() {
+      try {
+        const initData = tg.initData || "";
+        const res = await fetch("/api/guest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ initData })
+        });
 
-      if (screenId === "cardScreen") {
-        loadGuest();
-      }
+        const data = await res.json();
 
-      if (screenId === "eventsScreen") {
-        loadEvents();
-      }
+        if (!data.ok) {
+          renderGuestFallback();
+          return;
+        }
 
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    }
-
-    function openExternal(url) {
-      if (tg && tg.openLink) {
-        tg.openLink(url);
-        return;
-      }
-
-      window.open(url, "_blank");
-    }
-
-    function showStatus(text, type = "default") {
-      statusEl.textContent = text;
-      statusEl.classList.add("show");
-      statusEl.classList.remove("error", "success");
-
-      if (type === "error") {
-        statusEl.classList.add("error");
-      }
-
-      if (type === "success") {
-        statusEl.classList.add("success");
+        appGuest = normalizeGuestData(data);
+        renderGuest(appGuest);
+      } catch (e) {
+        console.error(e);
+        renderGuestFallback();
       }
     }
 
-    function hideStatus() {
-      statusEl.classList.remove("show", "error", "success");
-      statusEl.textContent = "";
-    }
+    function normalizeGuestData(data) {
+      const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) || {};
 
-    function renderQr(value) {
-      const qrValue = value || "no-data";
+      const customer = data.customer || data.guest || data.profile || data.user || data;
+      const phone = data.phone || customer.phone || "";
+      const rawName =
+        customer.name ||
+        customer.first_name ||
+        user.first_name ||
+        "Гость";
 
-      qrImageEl.src =
-        "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" +
-        encodeURIComponent(qrValue);
-    }
+      let points =
+        data.points ??
+        customer.points ??
+        customer.balance ??
+        customer.totalBalance ??
+        null;
 
-    function normalizeGuest(guest) {
+      if ((points === null || points === undefined) && Array.isArray(customer.walletBalances)) {
+        points = customer.walletBalances.reduce((sum, item) => {
+          return sum + Number(item.balance || 0);
+        }, 0);
+      }
+
+      if (points === null || points === undefined || Number.isNaN(Number(points))) {
+        points = 0;
+      }
+
       return {
-        first_name:
-          guest.first_name ||
-          guest.name ||
-          tg?.initDataUnsafe?.user?.first_name ||
-          "Гость",
-
-        phone:
-          guest.phone ||
-          guest.phone_number ||
-          "не указан",
-
-        points:
-          guest.bonus_balance ??
-          guest.points ??
-          guest.balance ??
-          guest.bonus_points ??
-          guest.bonuses ??
-          0,
-
-        qr_value:
-          guest.iiko_card_number ||
-          guest.card_number ||
-          guest.qr_value ||
-          guest.phone ||
-          guest.phone_number ||
-          guest.telegram_id ||
-          "no-data"
+        name: rawName,
+        phone: phone,
+        points: Number(points),
+        qrValue: phone || rawName
       };
     }
 
     function renderGuest(guest) {
-      const normalizedGuest = normalizeGuest(guest);
+      document.getElementById("guestName").textContent = `Привет, ${guest.name}!`;
+      document.getElementById("guestPoints").textContent = String(guest.points);
+      document.getElementById("guestPhone").textContent = guest.phone
+        ? `Телефон: ${guest.phone}`
+        : "Телефон: —";
 
-      titleEl.textContent = `Привет, ${normalizedGuest.first_name}!`;
-      subtitleEl.textContent = "Мы нашли вашу карту лояльности.";
-      pointsEl.textContent = normalizedGuest.points;
-      phoneEl.textContent = `Телефон: ${normalizedGuest.phone}`;
+      const qrValue = encodeURIComponent(guest.qrValue || guest.phone || "guest");
+      document.getElementById("qrImage").src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${qrValue}`;
 
-      if (guest.iiko_card_number) {
-        tagEl.textContent = `Карта: ${guest.iiko_card_number}`;
-      } else {
-        tagEl.textContent = "QR-код по номеру телефона";
-      }
+      document.getElementById("bookingName").value = guest.name || "";
+      document.getElementById("bookingPhone").value = guest.phone || "";
+    }
 
-      renderQr(normalizedGuest.qr_value);
+    function renderGuestFallback() {
+      const user = (tg.initDataUnsafe && tg.initDataUnsafe.user) || {};
+      const name = user.first_name || "Гость";
 
-      const bookingPhone = document.getElementById("bookingPhone");
-      if (bookingPhone && normalizedGuest.phone && normalizedGuest.phone !== "не указан") {
-        bookingPhone.value = normalizedGuest.phone;
+      document.getElementById("guestName").textContent = `Привет, ${name}!`;
+      document.getElementById("guestPoints").textContent = "0";
+      document.getElementById("guestPhone").textContent = "Телефон: —";
+      document.getElementById("qrImage").src =
+        "https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=guest";
+    }
+
+    // =========================
+    // ГЛАВНЫЕ КНОПКИ
+    // =========================
+
+    function scrollToCard() {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function openMenu() {
+      safeOpen(MENU_URL);
+    }
+
+    function safeOpen(url) {
+      try {
+        tg.openLink(url, { try_instant_view: false });
+      } catch (e) {
+        window.open(url, "_blank");
       }
     }
 
-    function renderGuestNotFound(telegramUser) {
-      const firstName = telegramUser?.first_name || "гость";
+    // =========================
+    // МЕРОПРИЯТИЯ
+    // =========================
 
-      titleEl.textContent = `Привет, ${firstName}!`;
-      subtitleEl.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
-      pointsEl.textContent = "0";
-      phoneEl.textContent = "Телефон: —";
-      tagEl.textContent = "QR-код появится после привязки номера";
-
-      renderQr(`telegram:${telegramUser?.id || "unknown"}`);
-    }
-
-    async function loadGuest() {
-      if (!tg || !tg.initData) {
-        titleEl.textContent = "Не удалось проверить Telegram";
-        subtitleEl.textContent = "Закройте и снова откройте приложение через бота.";
-        pointsEl.textContent = "0";
-        phoneEl.textContent = "Телефон: —";
-        renderQr("Нет данных Telegram");
-        return;
-      }
+    async function openEvents() {
+      document.getElementById("eventsScreen").classList.remove("hidden");
+      const container = document.getElementById("eventsContent");
+      container.innerHTML = '<div class="loading">Загружаем мероприятия...</div>';
 
       try {
-        hideStatus();
-        cardEl.classList.add("loading");
+        const res = await fetch("/api/events");
+        const data = await res.json();
 
-        const response = await fetch("/api/guest", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            initData: tg.initData
-          })
-        });
-
-        const data = await response.json();
-
-        if (data.ok && data.guest) {
-          renderGuest(data.guest);
+        if (!data.ok || !Array.isArray(data.events) || !data.events.length) {
+          container.innerHTML = `
+            <div class="empty-box">
+              Пока мероприятий нет. Совсем скоро здесь появится свежая афиша месяца.
+            </div>
+          `;
           return;
         }
 
-        if (data.reason === "guest_not_found") {
-          renderGuestNotFound(data.telegram_user);
-          return;
-        }
-
-        throw new Error(data.error || "Не удалось загрузить карту");
-      } catch (error) {
-        console.error(error);
-
-        titleEl.textContent = "Ошибка загрузки";
-        subtitleEl.textContent = "Проверьте интернет и попробуйте снова.";
-        pointsEl.textContent = "0";
-        phoneEl.textContent = "Телефон: —";
-        tagEl.textContent = "QR-код временно недоступен";
-
-        renderQr("Ошибка загрузки карты");
-        showStatus("Ошибка загрузки карты. Попробуйте открыть мини-приложение еще раз.", "error");
-      } finally {
-        cardEl.classList.remove("loading");
-      }
-    }
-
-    async function loadEvents() {
-      try {
-        if (!eventsListEl) {
-          return;
-        }
-
-        const response = await fetch("/api/events");
-        const data = await response.json();
-
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || "Не удалось загрузить мероприятия");
-        }
-
-        renderEvents(data.events || []);
-      } catch (error) {
-        console.error(error);
-
-        if (eventsListEl) {
-          eventsListEl.innerHTML = "";
-
-          const card = document.createElement("div");
-          card.className = "event-card";
-
-          const date = document.createElement("div");
-          date.className = "event-date";
-          date.textContent = "Ошибка";
-
-          const title = document.createElement("div");
-          title.className = "event-title";
-          title.textContent = "Не удалось загрузить афишу";
-
-          const text = document.createElement("p");
-          text.className = "event-text";
-          text.textContent = "Попробуйте открыть раздел еще раз чуть позже.";
-
-          card.appendChild(date);
-          card.appendChild(title);
-          card.appendChild(text);
-          eventsListEl.appendChild(card);
-        }
-      }
-    }
-
-    function renderEvents(events) {
-      eventsListEl.innerHTML = "";
-
-      if (!events.length) {
-        const card = document.createElement("div");
-        card.className = "event-card";
-
-        const date = document.createElement("div");
-        date.className = "event-date";
-        date.textContent = "Скоро";
-
-        const title = document.createElement("div");
-        title.className = "event-title";
-        title.textContent = "Афиша обновляется";
-
-        const text = document.createElement("p");
-        text.className = "event-text";
-        text.textContent = "Мероприятия скоро появятся здесь.";
-
-        card.appendChild(date);
-        card.appendChild(title);
-        card.appendChild(text);
-        eventsListEl.appendChild(card);
-
-        return;
-      }
-
-      events.forEach((event) => {
-        const card = document.createElement("div");
-        card.className = "event-card";
-
-        const date = document.createElement("div");
-        date.className = "event-date";
-        date.textContent = event.event_date || "Скоро";
-
-        const title = document.createElement("div");
-        title.className = "event-title";
-        title.textContent = event.title || "Мероприятие";
-
-        card.appendChild(date);
-        card.appendChild(title);
-
-        if (event.branch) {
-          const branch = document.createElement("div");
-          branch.className = "event-branch";
-          branch.textContent = event.branch;
-          card.appendChild(branch);
-        }
-
-        if (event.description) {
-          const text = document.createElement("p");
-          text.className = "event-text";
-          text.textContent = event.description;
-          card.appendChild(text);
-        }
-
-        if (event.button_text) {
-          const button = document.createElement("button");
-          button.className = "btn btn-primary";
-          button.textContent = event.button_text;
-
-          button.addEventListener("click", () => {
-            if (event.button_url) {
-              openExternal(event.button_url);
-            } else {
-              showScreen("bookingScreen");
+        container.innerHTML = data.events.map(event => `
+          <div class="event-card">
+            <div class="event-date">${escapeHtml(event.event_date || "Скоро")}</div>
+            <div class="event-title">${escapeHtml(event.title || "Мероприятие")}</div>
+            <div class="event-branch">${escapeHtml(event.branch || "Все филиалы")}</div>
+            <div class="event-text">${escapeHtml(event.description || "")}</div>
+            ${
+              event.button_text && event.button_url
+                ? `<button class="action-btn" onclick="safeOpen('${escapeJs(event.button_url)}')">${escapeHtml(event.button_text)}</button>`
+                : ""
             }
-          });
-
-          card.appendChild(button);
-        }
-
-        eventsListEl.appendChild(card);
-      });
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error(e);
+        container.innerHTML = `
+          <div class="empty-box">
+            Не удалось загрузить мероприятия. Попробуйте ещё раз чуть позже.
+          </div>
+        `;
+      }
     }
 
-    async function sendBooking() {
-      hideStatus();
+    function closeEvents() {
+      document.getElementById("eventsScreen").classList.add("hidden");
+    }
 
-      if (!tg || !tg.initData) {
-        showStatus("Откройте форму внутри Telegram, чтобы отправить заявку.", "error");
-        return;
-      }
+    // =========================
+    // БРОНЬ
+    // =========================
 
+    function openBooking() {
+      document.getElementById("bookingScreen").classList.remove("hidden");
+      document.getElementById("bookingResult").textContent = "";
+    }
+
+    function closeBooking() {
+      document.getElementById("bookingScreen").classList.add("hidden");
+    }
+
+    async function submitBooking() {
       const name = document.getElementById("bookingName").value.trim();
       const phone = document.getElementById("bookingPhone").value.trim();
-      const branch = document.getElementById("bookingBranch").value.trim();
-      const date = document.getElementById("bookingDate").value.trim();
-      const time = document.getElementById("bookingTime").value.trim();
-      const guests = document.getElementById("bookingGuests").value.trim();
+      const branch = document.getElementById("bookingBranch").value;
+      const date = document.getElementById("bookingDate").value;
+      const time = document.getElementById("bookingTime").value;
+      const guests = document.getElementById("bookingGuests").value;
       const comment = document.getElementById("bookingComment").value.trim();
+      const result = document.getElementById("bookingResult");
 
-      if (!name || !phone || !branch || !date || !time || !guests) {
-        showStatus("Заполните имя, телефон, филиал, дату, время и количество гостей.", "error");
+      if (!name || !phone || !date || !time || !guests) {
+        result.textContent = "Пожалуйста, заполните все обязательные поля.";
         return;
       }
 
-      const fullComment = `Филиал: ${branch}${comment ? "\nКомментарий гостя: " + comment : ""}`;
+      result.textContent = "Отправляем бронь...";
 
       try {
-        bookingSubmitBtn.disabled = true;
-        bookingSubmitBtn.textContent = "Отправляем...";
+        const initData = tg.initData || "";
 
-        const response = await fetch("/api/booking", {
+        const res = await fetch("/api/booking", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            initData: tg.initData,
+            initData,
             name,
             phone,
+            branch,
             date,
             time,
             guests,
-            comment: fullComment
+            comment
           })
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || "Не удалось отправить бронь");
+        if (data.ok) {
+          result.textContent = "Готово! Бронь отправлена администраторам.";
+          document.getElementById("bookingComment").value = "";
+        } else {
+          result.textContent = data.error || "Не удалось отправить бронь.";
         }
-
-        showStatus("Заявка отправлена ✅ Администратор свяжется с вами для подтверждения.", "success");
-
-        document.getElementById("bookingDate").value = "";
-        document.getElementById("bookingTime").value = "";
-        document.getElementById("bookingGuests").value = "";
-        document.getElementById("bookingComment").value = "";
-      } catch (error) {
-        console.error(error);
-        showStatus("Не удалось отправить заявку. Попробуйте еще раз или напишите нам в Telegram.", "error");
-      } finally {
-        bookingSubmitBtn.disabled = false;
-        bookingSubmitBtn.textContent = "Отправить заявку";
+      } catch (e) {
+        console.error(e);
+        result.textContent = "Ошибка отправки. Попробуйте ещё раз.";
       }
     }
 
-    shareBtn.addEventListener("click", () => {
-      hideStatus();
+    // =========================
+    // ОТЗЫВЫ
+    // =========================
 
-      if (!tg) {
-        showStatus("Откройте приложение внутри Telegram, чтобы поделиться номером телефона.", "error");
-        return;
-      }
+    function openReviews() {
+      document.getElementById("reviewsScreen").classList.remove("hidden");
+    }
 
-      if (!tg.requestContact) {
-        showStatus("На этом устройстве запрос номера телефона недоступен. Обновите Telegram и попробуйте снова.", "error");
-        return;
-      }
+    function closeReviews() {
+      document.getElementById("reviewsScreen").classList.add("hidden");
+    }
 
-      tg.requestContact(function(shared) {
-        if (shared) {
-          showStatus("Номер телефона отправлен. Обновляем карту...");
-          setTimeout(loadGuest, 2000);
-        } else {
-          showStatus("Вы не поделились номером телефона.", "error");
-        }
-      });
-    });
+    // =========================
+    // СОЦСЕТИ
+    // =========================
+
+    function openSocials() {
+      document.getElementById("socialsScreen").classList.remove("hidden");
+    }
+
+    function closeSocials() {
+      document.getElementById("socialsScreen").classList.add("hidden");
+    }
+
+    // =========================
+    // HELPERS
+    // =========================
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(value) {
+      return String(value ?? "").replace(/'/g, "\\'");
+    }
   </script>
 </body>
 </html>
