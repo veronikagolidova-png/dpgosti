@@ -21,12 +21,10 @@
       --muted-2: #707070;
       --line: #2c2c2c;
       --red: #d62828;
-      --red-dark: #961919;
       --red-soft: rgba(214, 40, 40, 0.16);
       --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
       --radius-xl: 32px;
       --radius-lg: 24px;
-      --radius-md: 18px;
     }
 
     * {
@@ -481,7 +479,16 @@
     }
 
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: 0.01em;
     }
 
     .input {
@@ -493,10 +500,24 @@
       font-size: 16px;
       outline: none;
       color: var(--text);
+      color-scheme: dark;
     }
 
     .input::placeholder {
       color: var(--muted-2);
+    }
+
+    .input[type="date"],
+    .input[type="time"] {
+      min-height: 52px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .input[type="date"]::-webkit-calendar-picker-indicator,
+    .input[type="time"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      opacity: 0.9;
     }
 
     textarea.input {
@@ -715,14 +736,17 @@
         </p>
 
         <div class="form-group">
+          <label class="field-label" for="bookingName">Имя</label>
           <input class="input" id="bookingName" placeholder="Ваше имя" />
         </div>
 
         <div class="form-group">
-          <input class="input" id="bookingPhone" placeholder="Телефон" />
+          <label class="field-label" for="bookingPhone">Телефон</label>
+          <input class="input" id="bookingPhone" placeholder="+7..." />
         </div>
 
         <div class="form-group">
+          <label class="field-label" for="bookingBranch">Филиал</label>
           <select class="input" id="bookingBranch">
             <option value="">Выберите филиал</option>
             <option value="40 лет Победы 148/2">40 лет Победы 148/2</option>
@@ -731,19 +755,23 @@
         </div>
 
         <div class="form-group">
+          <label class="field-label" for="bookingDate">Дата</label>
           <input class="input" id="bookingDate" type="date" />
         </div>
 
         <div class="form-group">
+          <label class="field-label" for="bookingTime">Время</label>
           <input class="input" id="bookingTime" type="time" />
         </div>
 
         <div class="form-group">
-          <input class="input" id="bookingGuests" type="number" min="1" placeholder="Количество гостей" />
+          <label class="field-label" for="bookingGuests">Количество гостей</label>
+          <input class="input" id="bookingGuests" type="number" min="1" placeholder="Например, 4" />
         </div>
 
         <div class="form-group">
-          <textarea class="input" id="bookingComment" placeholder="Комментарий: пожелания по столику, повод, детали"></textarea>
+          <label class="field-label" for="bookingComment">Комментарий</label>
+          <textarea class="input" id="bookingComment" placeholder="Пожелания по столику, повод, детали"></textarea>
         </div>
 
         <button class="btn btn-primary" id="bookingSubmitBtn" onclick="sendBooking()">
