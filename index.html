@@ -238,11 +238,16 @@
       margin: 0 0 16px;
     }
 
+    .events-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
     .event-card {
       background: #ffffff;
       border-radius: 24px;
       padding: 18px;
-      margin-top: 12px;
       box-shadow: 0 8px 22px rgba(0,0,0,0.05);
     }
 
@@ -262,6 +267,13 @@
       font-weight: 850;
       line-height: 1.15;
       margin-bottom: 8px;
+    }
+
+    .event-branch {
+      font-size: 14px;
+      color: #8a8178;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
 
     .event-text {
@@ -480,31 +492,17 @@
       <div class="section-card">
         <h2 class="section-title">Мероприятия месяца</h2>
         <p class="section-text">
-          Здесь будет афиша ближайших событий. Заходите, выбирайте вечер и бронируйте стол заранее.
+          Афиша подтягивается автоматически. Если планы изменились — мы обновим всё здесь.
         </p>
 
-        <div class="event-card">
-          <div class="event-date">Каждую пятницу</div>
-          <div class="event-title">Вечер с музыкой</div>
-          <p class="event-text">
-            Атмосферный вечер, бар, кухня и тот самый повод собрать друзей.
-          </p>
-        </div>
-
-        <div class="event-card">
-          <div class="event-date">Каждую субботу</div>
-          <div class="event-title">Большой вечер в Давай Покрепче</div>
-          <p class="event-text">
-            Суббота создана не для дивана. Бронируйте стол — будет вкусно и шумно.
-          </p>
-        </div>
-
-        <div class="event-card">
-          <div class="event-date">Скоро</div>
-          <div class="event-title">Новая афиша месяца</div>
-          <p class="event-text">
-            Как только появится расписание, мы добавим сюда даты, время и детали мероприятий.
-          </p>
+        <div id="eventsList" class="events-list">
+          <div class="event-card">
+            <div class="event-date">Загружаем...</div>
+            <div class="event-title">Смотрим афишу</div>
+            <p class="event-text">
+              Сейчас подтянем ближайшие мероприятия.
+            </p>
+          </div>
         </div>
 
         <button class="btn btn-primary" onclick="showScreen('bookingScreen')">
@@ -622,6 +620,7 @@
     const shareBtn = document.getElementById("shareBtn");
     const cardEl = document.getElementById("card");
     const bookingSubmitBtn = document.getElementById("bookingSubmitBtn");
+    const eventsListEl = document.getElementById("eventsList");
 
     if (tg) {
       tg.ready();
@@ -643,6 +642,9 @@
       }
 
       loadGuest();
+      loadEvents();
+    } else {
+      loadEvents();
     }
 
     function showScreen(screenId) {
@@ -658,6 +660,10 @@
 
       if (screenId === "cardScreen") {
         loadGuest();
+      }
+
+      if (screenId === "eventsScreen") {
+        loadEvents();
       }
 
       window.scrollTo({
@@ -819,6 +825,125 @@
       } finally {
         cardEl.classList.remove("loading");
       }
+    }
+
+    async function loadEvents() {
+      try {
+        if (!eventsListEl) {
+          return;
+        }
+
+        const response = await fetch("/api/events");
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "Не удалось загрузить мероприятия");
+        }
+
+        renderEvents(data.events || []);
+      } catch (error) {
+        console.error(error);
+
+        if (eventsListEl) {
+          eventsListEl.innerHTML = "";
+
+          const card = document.createElement("div");
+          card.className = "event-card";
+
+          const date = document.createElement("div");
+          date.className = "event-date";
+          date.textContent = "Ошибка";
+
+          const title = document.createElement("div");
+          title.className = "event-title";
+          title.textContent = "Не удалось загрузить афишу";
+
+          const text = document.createElement("p");
+          text.className = "event-text";
+          text.textContent = "Попробуйте открыть раздел еще раз чуть позже.";
+
+          card.appendChild(date);
+          card.appendChild(title);
+          card.appendChild(text);
+          eventsListEl.appendChild(card);
+        }
+      }
+    }
+
+    function renderEvents(events) {
+      eventsListEl.innerHTML = "";
+
+      if (!events.length) {
+        const card = document.createElement("div");
+        card.className = "event-card";
+
+        const date = document.createElement("div");
+        date.className = "event-date";
+        date.textContent = "Скоро";
+
+        const title = document.createElement("div");
+        title.className = "event-title";
+        title.textContent = "Афиша обновляется";
+
+        const text = document.createElement("p");
+        text.className = "event-text";
+        text.textContent = "Мероприятия скоро появятся здесь.";
+
+        card.appendChild(date);
+        card.appendChild(title);
+        card.appendChild(text);
+        eventsListEl.appendChild(card);
+
+        return;
+      }
+
+      events.forEach((event) => {
+        const card = document.createElement("div");
+        card.className = "event-card";
+
+        const date = document.createElement("div");
+        date.className = "event-date";
+        date.textContent = event.event_date || "Скоро";
+
+        const title = document.createElement("div");
+        title.className = "event-title";
+        title.textContent = event.title || "Мероприятие";
+
+        card.appendChild(date);
+        card.appendChild(title);
+
+        if (event.branch) {
+          const branch = document.createElement("div");
+          branch.className = "event-branch";
+          branch.textContent = event.branch;
+          card.appendChild(branch);
+        }
+
+        if (event.description) {
+          const text = document.createElement("p");
+          text.className = "event-text";
+          text.textContent = event.description;
+          card.appendChild(text);
+        }
+
+        if (event.button_text) {
+          const button = document.createElement("button");
+          button.className = "btn btn-primary";
+          button.textContent = event.button_text;
+
+          button.addEventListener("click", () => {
+            if (event.button_url) {
+              openExternal(event.button_url);
+            } else {
+              showScreen("bookingScreen");
+            }
+          });
+
+          card.appendChild(button);
+        }
+
+        eventsListEl.appendChild(card);
+      });
     }
 
     async function sendBooking() {
