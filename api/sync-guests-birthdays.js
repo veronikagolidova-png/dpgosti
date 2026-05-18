@@ -20,7 +20,7 @@ module.exports = async function handler(req, res) {
 
   const key = String(req.query.key || "");
   const confirm = String(req.query.confirm || "");
-  const limit = Math.min(Number(req.query.limit || 100), 300);
+  const limit = Math.min(Number(req.query.limit || 300), 300);
 
   if (key !== SYNC_SECRET) {
     return res.status(401).json({
@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const guestsResult = await getGuestsWithoutBirthday({
+    const guestsResult = await getGuestsFromSupabase({
       supabaseUrl: SUPABASE_URL,
       supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
       limit
@@ -106,22 +106,33 @@ module.exports = async function handler(req, res) {
       }
 
       const customer = iikoCustomerResult.customer;
+
+      const iikoCustomerId = customer.id || "";
+      const iikoFirstName = cleanText(customer.name);
+      const iikoLastName = cleanText(customer.surname || customer.surName);
+      const iikoMiddleName = cleanText(customer.middleName);
+      const iikoFullName = buildFullName({
+        lastName: iikoLastName,
+        firstName: iikoFirstName,
+        middleName: iikoMiddleName
+      });
+
       const birthday = extractDate(customer.birthday);
+      const sourceFromUserData = extractSource(customer.userData);
+
+      const syncData = {
+        iiko_customer_id: iikoCustomerId || null,
+        iiko_first_name: iikoFirstName || null,
+        iiko_last_name: iikoLastName || null,
+        iiko_middle_name: iikoMiddleName || null,
+        iiko_full_name: iikoFullName || null,
+        birthday: birthday || null,
+        source: sourceFromUserData || null
+      };
 
       if (!birthday) {
         result.skippedNoBirthdayInIiko += 1;
-        result.items.push({
-          id: guest.id,
-          phone,
-          status: "no_birthday_in_iiko",
-          customerName: customer.name || null,
-          customerSurname: customer.surname || null
-        });
-        await sleep(200);
-        continue;
       }
-
-      const sourceFromUserData = extractSource(customer.userData);
 
       if (dryRun) {
         result.wouldUpdate += 1;
@@ -129,10 +140,7 @@ module.exports = async function handler(req, res) {
           id: guest.id,
           phone,
           status: "would_update",
-          birthday,
-          source: sourceFromUserData || null,
-          customerName: customer.name || null,
-          customerSurname: customer.surname || null
+          ...syncData
         });
         await sleep(200);
         continue;
@@ -142,8 +150,7 @@ module.exports = async function handler(req, res) {
         supabaseUrl: SUPABASE_URL,
         supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
         guestId: guest.id,
-        birthday,
-        source: sourceFromUserData
+        syncData
       });
 
       if (!updateResult.ok) {
@@ -152,7 +159,6 @@ module.exports = async function handler(req, res) {
           id: guest.id,
           phone,
           status: "update_error",
-          birthday,
           error: updateResult.error
         });
         await sleep(200);
@@ -164,10 +170,7 @@ module.exports = async function handler(req, res) {
         id: guest.id,
         phone,
         status: "updated",
-        birthday,
-        source: sourceFromUserData || null,
-        customerName: customer.name || null,
-        customerSurname: customer.surname || null
+        ...syncData
       });
 
       await sleep(200);
@@ -184,6 +187,10 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+function cleanText(value) {
+  return String(value || "").trim();
+}
 
 function normalizePhone(phone) {
   let digits = String(phone || "").replace(/\D/g, "");
@@ -219,6 +226,13 @@ function extractSource(userData) {
   return String(match[1] || "")
     .split("\n")[0]
     .trim();
+}
+
+function buildFullName({ lastName, firstName, middleName }) {
+  return [lastName, firstName, middleName]
+    .map((part) => cleanText(part))
+    .filter(Boolean)
+    .join(" ");
 }
 
 function cleanSupabaseUrl(supabaseUrl) {
@@ -289,14 +303,13 @@ async function getIikoCustomerByPhone({ token, organizationId, phone }) {
   };
 }
 
-async function getGuestsWithoutBirthday({ supabaseUrl, supabaseKey, limit }) {
+async function getGuestsFromSupabase({ supabaseUrl, supabaseKey, limit }) {
   const baseUrl = cleanSupabaseUrl(supabaseUrl);
 
   const url =
     `${baseUrl}/rest/v1/guests` +
-    `?select=id,phone,birthday,source` +
+    `?select=id,phone,birthday,source,iiko_customer_id,iiko_full_name` +
     `&phone=not.is.null` +
-    `&birthday=is.null` +
     `&limit=${limit}`;
 
   const response = await fetch(url, {
@@ -334,19 +347,41 @@ async function updateGuestInSupabase({
   supabaseUrl,
   supabaseKey,
   guestId,
-  birthday,
-  source
+  syncData
 }) {
   const baseUrl = cleanSupabaseUrl(supabaseUrl);
   const url = `${baseUrl}/rest/v1/guests?id=eq.${encodeURIComponent(guestId)}`;
 
   const updateData = {
-    birthday,
     updated_at: new Date().toISOString()
   };
 
-  if (source) {
-    updateData.source = source;
+  if (syncData.iiko_customer_id) {
+    updateData.iiko_customer_id = syncData.iiko_customer_id;
+  }
+
+  if (syncData.iiko_first_name) {
+    updateData.iiko_first_name = syncData.iiko_first_name;
+  }
+
+  if (syncData.iiko_last_name) {
+    updateData.iiko_last_name = syncData.iiko_last_name;
+  }
+
+  if (syncData.iiko_middle_name) {
+    updateData.iiko_middle_name = syncData.iiko_middle_name;
+  }
+
+  if (syncData.iiko_full_name) {
+    updateData.iiko_full_name = syncData.iiko_full_name;
+  }
+
+  if (syncData.birthday) {
+    updateData.birthday = syncData.birthday;
+  }
+
+  if (syncData.source) {
+    updateData.source = syncData.source;
   }
 
   const response = await fetch(url, {
