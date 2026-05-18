@@ -117,6 +117,18 @@ module.exports = async function handler(req, res) {
     if (checkResult.ok && checkResult.customer) {
       customer = checkResult.customer;
       customerId = customer.id;
+
+      // Если гость уже есть в iiko, обновим дату рождения и источник,
+      // чтобы данные не потерялись.
+      await createIikoCustomer({
+        token,
+        organizationId: IIKO_ORGANIZATION_ID,
+        phone,
+        fullName,
+        birthday: iikoBirthday,
+        source,
+        nameParts
+      });
     } else if (checkResult.notFound) {
       const createResult = await createIikoCustomer({
         token,
@@ -205,6 +217,10 @@ module.exports = async function handler(req, res) {
         ? finalResult.customer
         : customer;
 
+    const finalBirthday =
+      extractDate(finalCustomer && finalCustomer.birthday) ||
+      birthday;
+
     await saveGuestToSupabase({
       supabaseUrl: SUPABASE_URL,
       supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
@@ -214,6 +230,8 @@ module.exports = async function handler(req, res) {
         first_name: nameParts.name || telegramUser.first_name || null,
         last_name: nameParts.surName || telegramUser.last_name || null,
         username: telegramUser.username || null,
+        birthday: finalBirthday,
+        source,
         updated_at: new Date().toISOString()
       }
     });
@@ -227,6 +245,8 @@ module.exports = async function handler(req, res) {
       phone,
       customerId,
       cardNumber,
+      birthday: finalBirthday,
+      source,
       createdCustomer,
       addedCard,
       customer: finalCustomer
@@ -266,6 +286,20 @@ function normalizeCardNumber(value) {
 
 function isValidBirthday(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ""));
+}
+
+function extractDate(value) {
+  if (!value) return "";
+
+  const text = String(value).trim();
+
+  const match = text.match(/^(\d{4}-\d{2}-\d{2})/);
+
+  if (match) {
+    return match[1];
+  }
+
+  return "";
 }
 
 function splitFullName(fullName) {
