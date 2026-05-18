@@ -201,6 +201,24 @@
       word-break: break-word;
     }
 
+    .register-prompt {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .register-prompt.show {
+      display: block;
+    }
+
+    .register-prompt-text {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
     .menu-grid {
       display: grid;
       gap: 11px;
@@ -525,6 +543,31 @@
       resize: vertical;
     }
 
+    .checkbox-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px;
+      border-radius: 17px;
+      background: var(--panel-soft);
+      border: 1px solid var(--line);
+      margin: 4px 0 14px;
+    }
+
+    .checkbox-row input {
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--red);
+      flex: 0 0 auto;
+    }
+
+    .checkbox-text {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
     .status {
       margin-top: 14px;
       background: var(--panel-soft);
@@ -616,6 +659,15 @@
           </div>
           <div class="quick-phone" id="homePhone">Телефон: —</div>
         </div>
+
+        <div class="register-prompt" id="homeRegisterPrompt">
+          <div class="register-prompt-text">
+            Мы пока не нашли вашу карту. Ее можно быстро завести прямо здесь.
+          </div>
+          <button class="btn btn-primary" onclick="showScreen('registerScreen')">
+            Завести карту
+          </button>
+        </div>
       </div>
 
       <div class="menu-grid">
@@ -692,6 +744,15 @@
         <div class="qr-note">
           Покажите этот QR-код на кассе, чтобы начислить или списать бонусы.
         </div>
+
+        <div class="register-prompt" id="cardRegisterPrompt">
+          <div class="register-prompt-text">
+            Карта пока не найдена. Заполните короткую анкету — и мы создадим ее для вас.
+          </div>
+          <button class="btn btn-primary" onclick="showScreen('registerScreen')">
+            Завести карту
+          </button>
+        </div>
       </div>
 
       <button class="btn btn-primary" id="shareBtn">
@@ -701,6 +762,60 @@
       <button class="btn btn-secondary" onclick="loadGuest()">
         Обновить карту
       </button>
+    </div>
+
+    <div id="registerScreen" class="screen">
+      <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+      <div class="screen-card">
+        <h2 class="screen-title">Завести карту</h2>
+        <p class="screen-text">
+          Заполните данные — мы создадим вашу карту гостя в iikoCard.
+        </p>
+
+        <div class="form-group">
+          <label class="field-label" for="registerFullName">ФИО</label>
+          <input class="input" id="registerFullName" placeholder="Например: Иванов Иван Иванович" />
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="registerPhone">Телефон</label>
+          <input class="input" id="registerPhone" placeholder="+7..." />
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="registerBirthday">Дата рождения</label>
+          <input class="input" id="registerBirthday" type="date" />
+        </div>
+
+        <div class="form-group">
+          <label class="field-label" for="registerSource">Откуда узнали о нас?</label>
+          <select class="input" id="registerSource">
+            <option value="">Выберите вариант</option>
+            <option value="Instagram">Instagram</option>
+            <option value="Telegram">Telegram</option>
+            <option value="VK">VK</option>
+            <option value="2ГИС">2ГИС</option>
+            <option value="Яндекс Карты">Яндекс Карты</option>
+            <option value="Google Карты">Google Карты</option>
+            <option value="Друзья">Друзья</option>
+            <option value="Проходил(а) мимо">Проходил(а) мимо</option>
+            <option value="Уже был(а) у вас">Уже был(а) у вас</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+
+        <label class="checkbox-row">
+          <input id="registerAgreement" type="checkbox" />
+          <span class="checkbox-text">
+            Я согласен(на) на обработку персональных данных и создание карты гостя.
+          </span>
+        </label>
+
+        <button class="btn btn-primary" id="registerSubmitBtn" onclick="sendRegistration()">
+          Создать карту
+        </button>
+      </div>
     </div>
 
     <div id="eventsScreen" class="screen">
@@ -831,6 +946,8 @@
     const homeTitleEl = document.getElementById("homeTitle");
     const homePointsEl = document.getElementById("homePoints");
     const homePhoneEl = document.getElementById("homePhone");
+    const homeRegisterPromptEl = document.getElementById("homeRegisterPrompt");
+    const cardRegisterPromptEl = document.getElementById("cardRegisterPrompt");
 
     const titleEl = document.getElementById("title");
     const subtitleEl = document.getElementById("subtitle");
@@ -842,6 +959,7 @@
     const shareBtn = document.getElementById("shareBtn");
     const cardEl = document.getElementById("card");
     const bookingSubmitBtn = document.getElementById("bookingSubmitBtn");
+    const registerSubmitBtn = document.getElementById("registerSubmitBtn");
     const eventsListEl = document.getElementById("eventsList");
 
     if (tg) {
@@ -861,6 +979,12 @@
       if (user && user.first_name) {
         const bookingName = document.getElementById("bookingName");
         if (bookingName) bookingName.value = user.first_name;
+
+        const registerFullName = document.getElementById("registerFullName");
+        if (registerFullName) {
+          const fullName = [user.last_name, user.first_name].filter(Boolean).join(" ");
+          registerFullName.value = fullName || user.first_name;
+        }
       }
 
       loadGuest();
@@ -922,6 +1046,16 @@
       statusEl.textContent = "";
     }
 
+    function showRegisterPrompts() {
+      homeRegisterPromptEl.classList.add("show");
+      cardRegisterPromptEl.classList.add("show");
+    }
+
+    function hideRegisterPrompts() {
+      homeRegisterPromptEl.classList.remove("show");
+      cardRegisterPromptEl.classList.remove("show");
+    }
+
     function renderQr(value) {
       const qrValue = value || "no-data";
 
@@ -963,6 +1097,8 @@
     }
 
     function renderGuest(guest) {
+      hideRegisterPrompts();
+
       const normalizedGuest = normalizeGuest(guest);
 
       homeTitleEl.textContent = `Привет, ${normalizedGuest.first_name}!`;
@@ -985,8 +1121,11 @@
       renderQr(normalizedGuest.qr_value);
 
       const bookingPhone = document.getElementById("bookingPhone");
-      if (bookingPhone && normalizedGuest.phone && normalizedGuest.phone !== "не указан") {
-        bookingPhone.value = normalizedGuest.phone;
+      const registerPhone = document.getElementById("registerPhone");
+
+      if (normalizedGuest.phone && normalizedGuest.phone !== "не указан") {
+        if (bookingPhone) bookingPhone.value = normalizedGuest.phone;
+        if (registerPhone) registerPhone.value = normalizedGuest.phone;
       }
     }
 
@@ -995,22 +1134,25 @@
 
       homeTitleEl.textContent = `Привет, ${firstName}!`;
       homePointsEl.textContent = "0";
-      homePhoneEl.textContent = "Телефон: —";
+      homePhoneEl.textContent = "Карта пока не найдена";
 
       titleEl.textContent = `Привет, ${firstName}!`;
-      subtitleEl.textContent = "Поделитесь номером телефона, чтобы мы нашли вашу карту лояльности.";
+      subtitleEl.textContent = "Мы пока не нашли вашу карту. Ее можно завести за минуту.";
       pointsEl.textContent = "0";
       phoneEl.textContent = "Телефон: —";
-      tagEl.textContent = "QR-код появится после привязки номера";
+      tagEl.textContent = "QR-код появится после создания карты";
 
       renderQr(`telegram:${telegramUser?.id || "unknown"}`);
+      showRegisterPrompts();
     }
 
     async function loadGuest() {
       if (!tg || !tg.initData) {
+        showRegisterPrompts();
+
         homeTitleEl.textContent = "Привет!";
         homePointsEl.textContent = "0";
-        homePhoneEl.textContent = "Телефон: —";
+        homePhoneEl.textContent = "Карта пока не найдена";
 
         titleEl.textContent = "Не удалось проверить Telegram";
         subtitleEl.textContent = "Закройте и снова откройте приложение через бота.";
@@ -1046,13 +1188,13 @@
           return;
         }
 
-        throw new Error(data.error || "Не удалось загрузить карту");
+        renderGuestNotFound(data.telegram_user || tg.initDataUnsafe?.user || null);
       } catch (error) {
         console.error(error);
 
         homeTitleEl.textContent = "Привет!";
         homePointsEl.textContent = "0";
-        homePhoneEl.textContent = "Телефон: —";
+        homePhoneEl.textContent = "Карта пока не найдена";
 
         titleEl.textContent = "Ошибка загрузки";
         subtitleEl.textContent = "Проверьте интернет и попробуйте снова.";
@@ -1061,9 +1203,80 @@
         tagEl.textContent = "QR-код временно недоступен";
 
         renderQr("Ошибка загрузки карты");
-        showStatus("Ошибка загрузки карты. Попробуйте открыть мини-приложение еще раз.", "error");
+        showRegisterPrompts();
+        showStatus("Ошибка загрузки карты. Можно попробовать завести карту или открыть приложение еще раз.", "error");
       } finally {
         cardEl.classList.remove("loading");
+      }
+    }
+
+    async function sendRegistration() {
+      hideStatus();
+
+      if (!tg || !tg.initData) {
+        showStatus("Откройте приложение внутри Telegram, чтобы создать карту.", "error");
+        return;
+      }
+
+      const fullName = document.getElementById("registerFullName").value.trim();
+      const phone = document.getElementById("registerPhone").value.trim();
+      const birthday = document.getElementById("registerBirthday").value.trim();
+      const source = document.getElementById("registerSource").value.trim();
+      const agreement = document.getElementById("registerAgreement").checked;
+
+      if (!fullName || !phone || !birthday || !source) {
+        showStatus("Заполните ФИО, телефон, дату рождения и откуда узнали о нас.", "error");
+        return;
+      }
+
+      if (!agreement) {
+        showStatus("Нужно согласие на обработку персональных данных.", "error");
+        return;
+      }
+
+      try {
+        registerSubmitBtn.disabled = true;
+        registerSubmitBtn.textContent = "Создаем карту...";
+
+        const response = await fetch("/api/register-card", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            initData: tg.initData,
+            fullName,
+            phone,
+            birthday,
+            source,
+            agreement
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "Не удалось создать карту");
+        }
+
+        showStatus(data.message || "Карта создана ✅", "success");
+
+        if (data.phone) {
+          const bookingPhone = document.getElementById("bookingPhone");
+          if (bookingPhone) bookingPhone.value = data.phone;
+        }
+
+        await loadGuest();
+
+        setTimeout(() => {
+          showScreen("cardScreen");
+        }, 1000);
+      } catch (error) {
+        console.error(error);
+        showStatus(error.message || "Не удалось создать карту. Попробуйте еще раз.", "error");
+      } finally {
+        registerSubmitBtn.disabled = false;
+        registerSubmitBtn.textContent = "Создать карту";
       }
     }
 
