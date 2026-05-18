@@ -4,6 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const SYNC_SECRET = process.env.SYNC_SECRET;
+  const CRON_SECRET = process.env.CRON_SECRET;
 
   if (
     !IIKO_API_LOGIN ||
@@ -18,18 +19,23 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const key = String(req.query.key || "");
+  const queryKey = String(req.query.key || "");
   const confirm = String(req.query.confirm || "");
   const limit = Math.min(Number(req.query.limit || 300), 300);
+  const authHeader = req.headers.authorization || "";
 
-  if (key !== SYNC_SECRET) {
+  const isManualAuthorized = queryKey === SYNC_SECRET;
+  const isCronAuthorized =
+    CRON_SECRET && authHeader === `Bearer ${CRON_SECRET}`;
+
+  if (!isManualAuthorized && !isCronAuthorized) {
     return res.status(401).json({
       ok: false,
       error: "Wrong sync key"
     });
   }
 
-  const dryRun = confirm !== "yes";
+  const dryRun = isCronAuthorized ? false : confirm !== "yes";
 
   try {
     const tokenResult = await getIikoToken(IIKO_API_LOGIN);
@@ -63,12 +69,11 @@ module.exports = async function handler(req, res) {
       mode: dryRun ? "dry_run" : "update",
       message: dryRun
         ? "Проверка без записи. Чтобы записать данные, добавьте &confirm=yes"
-        : "Синхронизация выполнена",
+        : "Синхронизация с iiko выполнена",
       checked: guests.length,
       updated: 0,
       wouldUpdate: 0,
       skippedNoPhone: 0,
-      skippedNoBirthdayInIiko: 0,
       notFoundInIiko: 0,
       errors: 0,
       items: []
@@ -101,16 +106,18 @@ module.exports = async function handler(req, res) {
           status: "not_found_in_iiko",
           error: iikoCustomerResult.error || null
         });
-        await sleep(200);
+
+        await sleep(180);
         continue;
       }
 
       const customer = iikoCustomerResult.customer;
 
-      const iikoCustomerId = customer.id || "";
+      const iikoCustomerId = cleanText(customer.id);
       const iikoFirstName = cleanText(customer.name);
       const iikoLastName = cleanText(customer.surname || customer.surName);
       const iikoMiddleName = cleanText(customer.middleName);
+
       const iikoFullName = buildFullName({
         lastName: iikoLastName,
         firstName: iikoFirstName,
@@ -119,6 +126,8 @@ module.exports = async function handler(req, res) {
 
       const birthday = extractDate(customer.birthday);
       const sourceFromUserData = extractSource(customer.userData);
+      const bonusBalance = extractBonusBalance(customer);
+      const iikoCardNumber = extractCardNumber(customer, phone);
 
       const syncData = {
         iiko_customer_id: iikoCustomerId || null,
@@ -126,13 +135,12 @@ module.exports = async function handler(req, res) {
         iiko_last_name: iikoLastName || null,
         iiko_middle_name: iikoMiddleName || null,
         iiko_full_name: iikoFullName || null,
+        iiko_card_number: iikoCardNumber || null,
+        bonus_balance: bonusBalance,
         birthday: birthday || null,
-        source: sourceFromUserData || null
+        source: sourceFromUserData || null,
+        last_iiko_sync_at: new Date().toISOString()
       };
-
-      if (!birthday) {
-        result.skippedNoBirthdayInIiko += 1;
-      }
 
       if (dryRun) {
         result.wouldUpdate += 1;
@@ -142,7 +150,8 @@ module.exports = async function handler(req, res) {
           status: "would_update",
           ...syncData
         });
-        await sleep(200);
+
+        await sleep(180);
         continue;
       }
 
@@ -161,7 +170,8 @@ module.exports = async function handler(req, res) {
           status: "update_error",
           error: updateResult.error
         });
-        await sleep(200);
+
+        await sleep(180);
         continue;
       }
 
@@ -173,12 +183,12 @@ module.exports = async function handler(req, res) {
         ...syncData
       });
 
-      await sleep(200);
+      await sleep(180);
     }
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error("Sync guests birthdays error:", error);
+    console.error("Sync guests iiko error:", error);
 
     return res.status(500).json({
       ok: false,
@@ -204,6 +214,10 @@ function normalizePhone(phone) {
   }
 
   return digits ? `+${digits}` : "";
+}
+
+function normalizeCardNumber(value) {
+  return String(value || "").replace(/\D/g, "");
 }
 
 function extractDate(value) {
@@ -233,6 +247,56 @@ function buildFullName({ lastName, firstName, middleName }) {
     .map((part) => cleanText(part))
     .filter(Boolean)
     .join(" ");
+}
+
+function extractBonusBalance(customer) {
+  const walletBalances = Array.isArray(customer.walletBalances)
+    ? customer.walletBalances
+    : [];
+
+  if (!walletBalances.length) {
+    return 0;
+  }
+
+  const total = walletBalances.reduce((sum, wallet) => {
+    return sum + Number(wallet.balance || 0);
+  }, 0);
+
+  return Math.round(total);
+}
+
+function extractCardNumber(customer, phone) {
+  const cards = Array.isArray(customer.cards) ? customer.cards : [];
+
+  if (cards.length) {
+    const card = cards[0];
+
+    const possibleCardNumber =
+      card.cardNumber ||
+      card.number ||
+      card.track ||
+      card.cardTrack ||
+      card.value ||
+      "";
+
+    if (possibleCardNumber) {
+      return normalizeCardNumber(possibleCardNumber);
+    }
+  }
+
+  const possibleCustomerCardNumber =
+    customer.cardNumber ||
+    customer.cardTrack ||
+    customer.iikoCardNumber ||
+    "";
+
+  if (possibleCustomerCardNumber) {
+    return normalizeCardNumber(possibleCustomerCardNumber);
+  }
+
+  // У нас карта создавалась по номеру телефона.
+  // Если iiko не возвращает номер карты отдельным полем, сохраняем номер без плюса.
+  return normalizeCardNumber(phone);
 }
 
 function cleanSupabaseUrl(supabaseUrl) {
@@ -308,7 +372,7 @@ async function getGuestsFromSupabase({ supabaseUrl, supabaseKey, limit }) {
 
   const url =
     `${baseUrl}/rest/v1/guests` +
-    `?select=id,phone,birthday,source,iiko_customer_id,iiko_full_name` +
+    `?select=id,phone,birthday,source,iiko_customer_id,iiko_full_name,bonus_balance,iiko_card_number` +
     `&phone=not.is.null` +
     `&limit=${limit}`;
 
@@ -353,6 +417,8 @@ async function updateGuestInSupabase({
   const url = `${baseUrl}/rest/v1/guests?id=eq.${encodeURIComponent(guestId)}`;
 
   const updateData = {
+    bonus_balance: Number(syncData.bonus_balance || 0),
+    last_iiko_sync_at: syncData.last_iiko_sync_at,
     updated_at: new Date().toISOString()
   };
 
@@ -374,6 +440,10 @@ async function updateGuestInSupabase({
 
   if (syncData.iiko_full_name) {
     updateData.iiko_full_name = syncData.iiko_full_name;
+  }
+
+  if (syncData.iiko_card_number) {
+    updateData.iiko_card_number = syncData.iiko_card_number;
   }
 
   if (syncData.birthday) {
