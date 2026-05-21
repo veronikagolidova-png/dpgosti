@@ -1064,13 +1064,35 @@
         encodeURIComponent(qrValue);
     }
 
+    function cleanName(value) {
+      return String(value || "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
     function normalizeGuest(guest) {
+      const telegramUser = tg?.initDataUnsafe?.user || {};
+
+      const iikoFirstName = cleanName(
+        guest.iiko_first_name ||
+        guest.iikoFirstName ||
+        guest.name ||
+        ""
+      );
+
+      const telegramFirstName = cleanName(
+        guest.first_name ||
+        telegramUser.first_name ||
+        ""
+      );
+
+      const displayName =
+        iikoFirstName ||
+        telegramFirstName ||
+        "Гость";
+
       return {
-        first_name:
-          guest.first_name ||
-          guest.name ||
-          tg?.initDataUnsafe?.user?.first_name ||
-          "Гость",
+        first_name: displayName,
 
         phone:
           guest.phone ||
