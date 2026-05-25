@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
       `🍾 Новая бронь\n\n` +
       `Имя: ${name}\n` +
       `Телефон: ${phone}\n` +
-      `Дата: ${date}\n` +
+      `Дата: ${formatDateRu(date)}\n` +
       `Время: ${time}\n` +
       `Гостей: ${guests}\n` +
       `Комментарий: ${comment || "—"}\n\n` +
@@ -121,6 +121,29 @@ module.exports = async function handler(req, res) {
 
 function cleanText(value) {
   return String(value || "").trim();
+}
+
+function formatDateRu(dateStr) {
+  if (!dateStr || typeof dateStr !== "string") {
+    return dateStr;
+  }
+
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (!match) {
+    return dateStr;
+  }
+
+  const months = [
+    "января", "февраля", "марта", "апреля", "мая", "июня",
+    "июля", "августа", "сентября", "октября", "ноября", "декабря"
+  ];
+
+  const year = match[1];
+  const month = parseInt(match[2], 10);
+  const day = parseInt(match[3], 10);
+
+  return `${day} ${months[month - 1]} ${year} года`;
 }
 
 function getTelegramUserLink(user) {
