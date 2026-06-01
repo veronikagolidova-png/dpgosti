@@ -62,6 +62,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (
+      text === "уточка" ||
+      text === "🦆 уточка" ||
+      text === "утка" ||
+      text === "🦆 утка" ||
       text === "🦆 челлендж с уточками" ||
       text === "челлендж с уточками" ||
       text === "/ducks"
@@ -159,7 +163,7 @@ module.exports = async function handler(req, res) {
     await sendTelegramMessage(
       BOT_TOKEN,
       chatId,
-      "Это бот «Давай Покрепче» 🖤\n\nНажмите кнопку «Открыть меню» внизу, чтобы открыть карту гостя, меню, бронь, афишу, отзывы и соцсети.\n\nА если участвуете в челлендже — напишите:\n🦆 Челлендж с уточками"
+      "Это бот «Давай Покрепче» 🖤\n\nНажмите кнопку «Открыть меню» внизу, чтобы открыть карту гостя, меню, бронь, афишу, отзывы и соцсети.\n\nА если участвуете в челлендже — напишите:\nуточка"
     );
 
     return res.status(200).json({ ok: true });
@@ -290,16 +294,7 @@ async function sendDuckChallengeInfo(token, chatId) {
     "4. Админ проверит фото и засчитает балл.\n\n" +
     "Кто найдёт больше всех уточек — получит сертификат на 5000 ₽ 🔥";
 
-  await sendTelegramMessage(token, chatId, text, {
-    inline_keyboard: [
-      [
-        {
-          text: "🦆 Я нашёл уточку",
-          callback_data: "duck_already_checked"
-        }
-      ]
-    ]
-  });
+  await sendTelegramMessage(token, chatId, text);
 
   await sendTelegramMessage(
     token,
