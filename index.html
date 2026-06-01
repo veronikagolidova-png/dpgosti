@@ -1471,16 +1471,16 @@ if (screenId === "duckScreen") {
       });
     }
 function openDuckBot() {
-  const botUrl = "https://t.me/DPgosti_bot";
+  const botUrl = "https://t.me/DPgosti_bot?start=duck";
 
-  if (tg && tg.openTelegramLink) {
-    tg.openTelegramLink(botUrl);
-    return;
+  if (tg && tg.close) {
+    tg.close();
   }
 
-  openExternal(botUrl);
+  setTimeout(() => {
+    window.location.href = botUrl;
+  }, 200);
 }
-
 async function loadDuckRating() {
   const duckRatingListEl = document.getElementById("duckRatingList");
 
