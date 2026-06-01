@@ -1468,7 +1468,77 @@
         eventsListEl.appendChild(card);
       });
     }
+function openDuckBot() {
+  const botUrl = "https://t.me/DPgosti_bot";
 
+  if (tg && tg.openTelegramLink) {
+    tg.openTelegramLink(botUrl);
+    return;
+  }
+
+  openExternal(botUrl);
+}
+
+async function loadDuckRating() {
+  const duckRatingListEl = document.getElementById("duckRatingList");
+
+  if (!duckRatingListEl) return;
+
+  duckRatingListEl.innerHTML = `
+    <div class="event-card">
+      <div class="event-title">Загружаем рейтинг...</div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch("/api/duck-rating");
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Не удалось загрузить рейтинг");
+    }
+
+    const rating = data.rating || [];
+
+    if (!rating.length) {
+      duckRatingListEl.innerHTML = `
+        <div class="event-card">
+          <div class="event-title">Пока в рейтинге пусто 🦆</div>
+          <p class="event-text">Стань первым, кто найдёт уточку!</p>
+        </div>
+      `;
+      return;
+    }
+
+    duckRatingListEl.innerHTML = "";
+
+    rating.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "event-card";
+
+      const title = document.createElement("div");
+      title.className = "event-title";
+      title.textContent = `${index + 1}. ${item.display_name || "Гость"}`;
+
+      const text = document.createElement("p");
+      text.className = "event-text";
+      text.textContent = `${item.ducks_count || 0} уточек`;
+
+      card.appendChild(title);
+      card.appendChild(text);
+      duckRatingListEl.appendChild(card);
+    });
+  } catch (error) {
+    console.error(error);
+
+    duckRatingListEl.innerHTML = `
+      <div class="event-card">
+        <div class="event-title">Рейтинг пока не загрузился</div>
+        <p class="event-text">Попробуйте обновить чуть позже.</p>
+      </div>
+    `;
+  }
+}
     async function sendBooking() {
       hideStatus();
 
