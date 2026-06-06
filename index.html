@@ -694,13 +694,7 @@
           </div>
           <div class="arrow">›</div>
         </button>
-<button class="menu-btn" onclick="showScreen('duckScreen')">
-  <div class="menu-btn-content">
-    <div class="menu-btn-title">🦆 Охота на уточек</div>
-    <div class="menu-btn-text">Найди уточек и выиграй сертификат 5000 ₽</div>
-  </div>
-  <div class="arrow">›</div>
-</button>
+
         <button class="menu-btn" onclick="showScreen('bookingScreen')">
           <div class="menu-btn-content">
             <div class="menu-btn-title">Забронировать стол</div>
@@ -846,50 +840,7 @@
         </button>
       </div>
     </div>
-<div id="duckScreen" class="screen">
-  <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
-  <div class="screen-card">
-    <h2 class="screen-title">🦆 Охота на уточек</h2>
-    <p class="screen-text">
-      5 июня мы спрячем 50 уточек в заведении.
-      Найди уточку, сфотографируй её на месте и отправь фото в бот.
-    </p>
-
-    <div class="tag">🏆 Главный приз — сертификат 5000 ₽</div>
-
-    <button class="btn btn-primary" onclick="openDuckBot()">
-      📸 Отправить фото уточки
-    </button>
-
-    <button class="btn btn-secondary" onclick="loadDuckRating()">
-      🏆 Обновить рейтинг
-    </button>
-  </div>
-
-  <div class="screen-card">
-    <h2 class="screen-title">Как играть</h2>
-    <p class="screen-text">
-      1. Найди уточку.<br>
-      2. Сфотографируй её прямо там, где нашёл.<br>
-      3. Отправь фото в бот.<br>
-      4. Админ проверит фото.<br>
-      5. За каждую подтвержденную уточку начисляется 1 балл.
-    </p>
-  </div>
-
-  <div class="screen-card">
-    <h2 class="screen-title">Рейтинг</h2>
-    <p class="screen-text">Засчитываются только подтвержденные фото.</p>
-
-    <div id="duckRatingList" class="events-list">
-      <div class="event-card">
-        <div class="event-title">Рейтинг пока загружается...</div>
-      </div>
-    </div>
-  </div>
-</div>
-    <div id="bookingScreen" class="screen">
       <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
       <div class="screen-card">
