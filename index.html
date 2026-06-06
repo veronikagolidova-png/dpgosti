@@ -1419,17 +1419,7 @@
         eventsListEl.appendChild(card);
       });
     }
-function openDuckBot() {
-  const botUrl = "https://t.me/DPgosti_bot?start=duck";
 
-  if (tg && tg.close) {
-    tg.close();
-  }
-
-  setTimeout(() => {
-    window.location.href = botUrl;
-  }, 200);
-}
 async function loadDuckRating() {
   const duckRatingListEl = document.getElementById("duckRatingList");
 
