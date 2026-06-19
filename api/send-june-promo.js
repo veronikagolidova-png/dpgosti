@@ -176,7 +176,7 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
       inline_keyboard: [
         [
           {
-            text: "🎉 Посмотреть афишу",
+            text: "🔥 Забронировать стол",
             web_app: {
               url: buttonUrl
             }
