@@ -1602,6 +1602,49 @@ async function findAdminGuest() {
     showStatus(error.message || "Не удалось найти гостя.", "error");
   }
 }
+    async function saveAdminGuest() {
+  const phone = document.getElementById("adminSearchPhone").value.trim();
+
+  if (!phone) {
+    showStatus("Сначала найдите гостя по телефону.", "error");
+    return;
+  }
+
+  const payload = {
+    phone,
+    first_name: document.getElementById("adminFirstName").value.trim(),
+    last_name: document.getElementById("adminLastName").value.trim(),
+    middle_name: document.getElementById("adminMiddleName").value.trim(),
+    birthday: document.getElementById("adminBirthday").value.trim()
+  };
+
+  try {
+    showStatus("Сохраняем изменения...");
+
+    const response = await fetch("/api/admin-update-guest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Не удалось сохранить изменения");
+    }
+
+    if (data.synced) {
+      showStatus("Изменения сохранены и отправлены в iiko ✅", "success");
+    } else {
+      showStatus("Изменения сохранены, но iiko пока не обновилась. Проверь синхронизацию позже.", "error");
+    }
+  } catch (error) {
+    console.error(error);
+    showStatus(error.message || "Ошибка сохранения.", "error");
+  }
+}
     shareBtn.addEventListener("click", () => {
       hideStatus();
 
