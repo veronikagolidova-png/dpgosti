@@ -1591,9 +1591,9 @@ async function findAdminGuest() {
         <input class="input" id="adminBirthday" type="date" value="${guest.birthday || ""}" />
       </div>
 
-      <button class="btn btn-primary" onclick="showStatus('Следующим шагом подключим сохранение в iiko.', 'success')">
-        💾 Сохранить изменения
-      </button>
+     <button class="btn btn-primary" onclick="saveAdminGuest()">
+    💾 Сохранить изменения
+</button>
     `;
 
     showStatus("Гость найден ✅", "success");
