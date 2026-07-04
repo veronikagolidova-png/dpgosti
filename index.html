@@ -1594,24 +1594,6 @@ async function findAdminGuest() {
      <button class="btn btn-primary" onclick="saveAdminGuest()">
     💾 Сохранить изменения
 </button>
-<div class="form-group">
-  <label class="field-label">Сумма баллов</label>
-  <input class="input" id="adminBonusAmount" type="number" min="1" placeholder="Например, 500" />
-</div>
-
-<div class="form-group">
-  <label class="field-label">Комментарий</label>
-  <input class="input" id="adminBonusComment" placeholder="Например: подарок гостю" />
-</div>
-
-<button class="btn btn-secondary" onclick="showStatus('Следующим шагом подключим начисление баллов.', 'success')">
-  🎁 Начислить баллы
-</button>
-
-<button class="btn btn-secondary" onclick="showStatus('Следующим шагом подключим списание баллов.', 'success')">
-  ➖ Списать баллы
-</button>
-    `;
 
     showStatus("Гость найден ✅", "success");
   } catch (error) {
