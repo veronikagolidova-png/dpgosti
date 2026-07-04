@@ -1528,7 +1528,7 @@ async function checkAdminAccess() {
   }
 }
 
-function findAdminGuest() {
+async function findAdminGuest() {
   const phone = document.getElementById("adminSearchPhone").value.trim();
 
   if (!phone) {
@@ -1536,7 +1536,71 @@ function findAdminGuest() {
     return;
   }
 
-  showStatus("Следующим шагом подключим поиск гостя по базе.", "success");
+  try {
+    showStatus("Ищем гостя...");
+
+    const response = await fetch(`/api/admin-guest?phone=${encodeURIComponent(phone)}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Ошибка поиска гостя");
+    }
+
+    if (!data.guest) {
+      showStatus("Гость с таким телефоном не найден.", "error");
+      return;
+    }
+
+    const guest = data.guest;
+
+    let resultBox = document.getElementById("adminGuestResult");
+
+    if (!resultBox) {
+      resultBox = document.createElement("div");
+      resultBox.id = "adminGuestResult";
+      resultBox.className = "screen-card";
+      document.getElementById("adminScreen").appendChild(resultBox);
+    }
+
+    resultBox.innerHTML = `
+      <h2 class="screen-title">Гость найден</h2>
+
+      <p class="screen-text">
+        Телефон: ${guest.phone || "—"}<br>
+        Telegram ID: ${guest.telegram_id || "—"}<br>
+        Баланс: ${guest.bonus_balance ?? guest.points ?? 0} баллов
+      </p>
+
+      <div class="form-group">
+        <label class="field-label">Имя</label>
+        <input class="input" id="adminFirstName" value="${guest.first_name || ""}" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Фамилия</label>
+        <input class="input" id="adminLastName" value="${guest.last_name || ""}" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Отчество</label>
+        <input class="input" id="adminMiddleName" value="${guest.middle_name || ""}" />
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Дата рождения</label>
+        <input class="input" id="adminBirthday" type="date" value="${guest.birthday || ""}" />
+      </div>
+
+      <button class="btn btn-primary" onclick="showStatus('Следующим шагом подключим сохранение в iiko.', 'success')">
+        💾 Сохранить изменения
+      </button>
+    `;
+
+    showStatus("Гость найден ✅", "success");
+  } catch (error) {
+    console.error(error);
+    showStatus(error.message || "Не удалось найти гостя.", "error");
+  }
 }
     shareBtn.addEventListener("click", () => {
       hideStatus();
