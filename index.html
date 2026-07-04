@@ -943,7 +943,23 @@
         </button>
       </div>
     </div>
+<div id="adminScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
+  <div class="screen-card">
+    <h2 class="screen-title">Админ</h2>
+    <p class="screen-text">Найдите гостя по телефону и измените данные.</p>
+
+    <div class="form-group">
+      <label class="field-label" for="adminSearchPhone">Телефон гостя</label>
+      <input class="input" id="adminSearchPhone" placeholder="+7..." />
+    </div>
+
+    <button class="btn btn-primary" onclick="findAdminGuest()">
+      Найти гостя
+    </button>
+  </div>
+</div>
     <div class="status" id="status"></div>
   </div>
 
