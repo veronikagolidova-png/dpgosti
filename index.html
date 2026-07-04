@@ -1509,7 +1509,35 @@ const adminMenuBtn = document.getElementById("adminMenuBtn");
         bookingSubmitBtn.textContent = "Отправить заявку";
       }
     }
+async function checkAdminAccess() {
+  const user = tg?.initDataUnsafe?.user;
 
+  if (!user || !user.id || !adminMenuBtn) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/is-admin?telegram_id=${user.id}`);
+    const data = await response.json();
+
+    if (data.ok && data.isAdmin) {
+      adminMenuBtn.style.display = "flex";
+    }
+  } catch (error) {
+    console.error("Admin check error:", error);
+  }
+}
+
+function findAdminGuest() {
+  const phone = document.getElementById("adminSearchPhone").value.trim();
+
+  if (!phone) {
+    showStatus("Введите телефон гостя.", "error");
+    return;
+  }
+
+  showStatus("Следующим шагом подключим поиск гостя по базе.", "success");
+}
     shareBtn.addEventListener("click", () => {
       hideStatus();
 
