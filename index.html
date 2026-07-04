@@ -965,6 +965,13 @@
 
   <script>
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    tg?.ready();
+tg?.expand();
+
+setTimeout(() => {
+  console.log("TG:", tg);
+  console.log("INIT DATA:", tg?.initData);
+}, 1000);
 
     const homeTitleEl = document.getElementById("homeTitle");
     const homePointsEl = document.getElementById("homePoints");
