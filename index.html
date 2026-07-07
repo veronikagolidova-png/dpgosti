@@ -1576,7 +1576,8 @@ async function findAdminGuest() {
       <p class="screen-text">
         Телефон: ${guest.phone || "—"}<br>
         Telegram ID: ${guest.telegram_id || "—"}<br>
-        Баланс: ${guest.bonus_balance ?? guest.points ?? 0} баллов
+        Баланс: ${guest.bonus_balance ?? guest.points ?? 0} баллов<br>
+Откуда узнал: ${guest.source || "—"}
       </p>
 
       <div class="form-group">
