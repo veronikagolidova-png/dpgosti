@@ -26,15 +26,13 @@ module.exports = async function handler(req, res) {
 
   const dryRun = confirm !== "yes";
 
-  const message = `Кажется, ты забыл, какой сегодня день… 🍷
+ const message = `Сегодня смотрим четвертьфинал Чемпионата мира ⚽️
 
-Сегодня четверг, а значит винный безлимит 🍇
+🇲🇦 Марокко — Франция 🇫🇷
+🕚 23:00
+📍 Кинозал, Северная 299А
 
-Всего 1 500 ₽ — и можно наслаждаться грузинским вином весь вечер.
-
-Бери друзей или приходи один за бар 😉
-
-Ждем тебя сегодня на 40 Лет Победы 148/2`;
+Чтобы забронировать столик нажимай кнопку ниже «Забронировать» 🔥`;
 
   try {
     const guestsResult = await getGuests({
@@ -169,7 +167,7 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
           inline_keyboard: [
             [
               {
-               text: "🍷 Забронировать стол",
+           text: "🔥 Забронировать",
                 web_app: {
                   url: buttonUrl
                 }
