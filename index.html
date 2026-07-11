@@ -1389,13 +1389,47 @@ async function sendRegistration() {
         return;
       }
 
-      const fullName = document.getElementById("registerFullName").value.trim();
+      const lastNameResult = validateRussianName(
+  document.getElementById("registerLastName").value,
+  "Фамилия"
+);
+
+if (!lastNameResult.ok) {
+  showStatus(lastNameResult.error, "error");
+  return;
+}
+
+const firstNameResult = validateRussianName(
+  document.getElementById("registerFirstName").value,
+  "Имя"
+);
+
+if (!firstNameResult.ok) {
+  showStatus(firstNameResult.error, "error");
+  return;
+}
+
+const middleNameResult = validateRussianName(
+  document.getElementById("registerMiddleName").value,
+  "Отчество"
+);
+
+if (!middleNameResult.ok) {
+  showStatus(middleNameResult.error, "error");
+  return;
+}
+
+const lastName = lastNameResult.value;
+const firstName = firstNameResult.value;
+const middleName = middleNameResult.value;
+
+const fullName = `${lastName} ${firstName} ${middleName}`;
       const phone = document.getElementById("registerPhone").value.trim();
       const birthday = document.getElementById("registerBirthday").value.trim();
       const source = document.getElementById("registerSource").value.trim();
       const agreement = document.getElementById("registerAgreement").checked;
 
-      if (!fullName || !phone || !birthday || !source) {
+      if (!phone || !birthday || !source) {
         showStatus("Заполните ФИО, телефон, дату рождения и откуда узнали о нас.", "error");
         return;
       }
