@@ -812,11 +812,51 @@
           Заполните данные — мы создадим вашу карту гостя в iikoCard.
         </p>
 
-        <div class="form-group">
-          <label class="field-label" for="registerFullName">ФИО</label>
-          <input class="input" id="registerFullName" placeholder="Например: Иванов Иван Иванович" />
-        </div>
+      <div class="form-group">
+  <label class="field-label" for="registerLastName">
+    Фамилия
+  </label>
+  <input
+    class="input"
+    id="registerLastName"
+    type="text"
+    placeholder="Например: Иванова"
+    autocomplete="family-name"
+    required
+  />
+</div>
 
+<div class="form-group">
+  <label class="field-label" for="registerFirstName">
+    Имя
+  </label>
+  <input
+    class="input"
+    id="registerFirstName"
+    type="text"
+    placeholder="Например: Анна"
+    autocomplete="given-name"
+    required
+  />
+</div>
+
+<div class="form-group">
+  <label class="field-label" for="registerMiddleName">
+    Отчество
+  </label>
+  <input
+    class="input"
+    id="registerMiddleName"
+    type="text"
+    placeholder="Например: Александровна"
+    autocomplete="additional-name"
+    required
+  />
+</div>
+
+<p class="form-hint">
+  Пожалуйста, укажите фамилию, имя и отчество полностью — только на русском языке.
+</p>
         <div class="form-group">
           <label class="field-label" for="registerPhone">Телефон</label>
           <input class="input" id="registerPhone" placeholder="+7..." />
