@@ -1344,7 +1344,43 @@ loadGuest();
         cardEl.classList.remove("loading");
       }
     }
+function validateRussianName(value, fieldName) {
+  const cleanedValue = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ");
 
+  if (!cleanedValue) {
+    return {
+      ok: false,
+      error: `Заполните поле «${fieldName}».`
+    };
+  }
+
+  if (cleanedValue.length < 2) {
+    return {
+      ok: false,
+      error: `Поле «${fieldName}» заполнено слишком коротко.`
+    };
+  }
+
+  const russianNamePattern = /^[А-ЯЁа-яё-]+$/;
+
+  if (!russianNamePattern.test(cleanedValue)) {
+    return {
+      ok: false,
+      error: `Поле «${fieldName}» нужно заполнить на русском языке.`
+    };
+  }
+
+  return {
+    ok: true,
+    value:
+      cleanedValue.charAt(0).toUpperCase() +
+      cleanedValue.slice(1).toLowerCase()
+  };
+}
+
+async function sendRegistration() {
     async function sendRegistration() {
       hideStatus();
 
