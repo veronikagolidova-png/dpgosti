@@ -32,6 +32,18 @@ module.exports = async function handler(req, res) {
 
     const initData = cleanText(body.initData);
     const fullName = cleanText(body.fullName);
+    const fullNameParts = fullName.split(/\s+/).filter(Boolean);
+const russianNamePattern = /^[А-ЯЁа-яё-]+$/;
+
+if (
+  fullNameParts.length !== 3 ||
+  !fullNameParts.every((part) => russianNamePattern.test(part))
+) {
+  return res.status(400).json({
+    ok: false,
+    error: "Укажите фамилию, имя и отчество полностью — только на русском языке"
+  });
+}
     const rawPhone = cleanText(body.phone);
     const birthday = cleanText(body.birthday);
     const source = cleanText(body.source);
