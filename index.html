@@ -1808,7 +1808,7 @@ async function findAdminGuest() {
   try {
     showStatus("Запускаем синхронизацию...");
 
-    const response = await fetch("/api/sync-guests?key=dp123&limit=300");
+    const response = await fetch("/api/sync-guests?key=dp123&limit=1000");
     const data = await response.json();
 
     if (!response.ok || !data.ok) {
