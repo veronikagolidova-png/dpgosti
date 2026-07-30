@@ -6,7 +6,7 @@ module.exports = async function handler(req, res) {
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
   const key = String(req.query.key || "");
-  const limit = Math.min(Number(req.query.limit || 300), 300);
+  const limit = Math.min(Number(req.query.limit || 1000), 1000);
 
   if (key !== SYNC_SECRET) {
     return res.status(401).json({ ok: false, error: "Wrong key" });
