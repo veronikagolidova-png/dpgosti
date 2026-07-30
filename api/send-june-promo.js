@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
   const key = String(req.query.key || "");
   const confirm = String(req.query.confirm || "");
-  const limit = Math.min(Number(req.query.limit || 300), 300);
+ const limit = Math.min(Number(req.query.limit || 1000), 1000);
 const dryRun = confirm !== "yes";
   if (key !== SYNC_SECRET) {
     return res.status(401).json({
