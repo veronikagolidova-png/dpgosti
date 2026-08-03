@@ -656,6 +656,54 @@
   font-size: 14px;
   line-height: 1.4;
 }
+    .video-menu-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.video-menu-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--panel-soft);
+}
+
+.drink-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: #000;
+}
+
+.drink-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+}
+
+.drink-title {
+  margin: 0 0 6px;
+  font-size: 21px;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.drink-description {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.drink-price {
+  flex: 0 0 auto;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--text);
+}
   </style>
 </head>
 
