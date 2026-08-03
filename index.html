@@ -963,23 +963,24 @@
     <div class="video-menu-grid">
 
       <div class="video-menu-card">
-        <video
-          class="drink-video"
-          autoplay
-          muted
-          loop
-          playsinline
-          preload="metadata"
-        
-        >
-         <video
+       <video
+  id="drinkVideo1"
   class="drink-video"
   autoplay
   muted
   loop
   playsinline
-  preload="metadata"
+  webkit-playsinline
+  preload="auto"
+  controls
+  onloadeddata="this.play().catch(() => {})"
+  oncanplay="this.play().catch(() => {})"
 >
+  <source
+    src="https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/copy_32BF03FA-1DD2-4EB3-BC81-BDF3D0BAD8FF.mp4"
+    type="video/mp4"
+  />
+</video>
   <source
     src="https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/copy_32BF03FA-1DD2-4EB3-BC81-BDF3D0BAD8FF.mp4"
     type="video/mp4"
