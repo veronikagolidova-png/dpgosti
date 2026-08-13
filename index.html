@@ -1279,7 +1279,377 @@ loadGuest();
     } else {
       loadEvents();
     }
+// =========================
+// МЕНЮ «ДАВАЙ ПОКРЕПЧЕ»
+// =========================
 
+let currentMenuBranch = "pobedy";
+
+const menuData = {
+
+  // =========================
+  // 40 ЛЕТ ПОБЕДЫ
+  // =========================
+
+  pobedy: {
+    title: "40 Лет Победы, 148/2",
+
+    cocktails: [
+      {
+        name: "Влюбленные",
+        description: "Текила, кордиал киви, вода алоэ",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Итальянский полдень",
+        description: "Джин, Совиньон Блан, кордиал груша, бобы тонка, клубничная пена",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Утро в сосновом лесу",
+        description: "Ягермейстер, сухой вермут, кордиал клубника",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Девушка с жемчужиной",
+        description: "Бурбон, отвар жасмина, лимонный сок, сахарный сироп",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Мона Лиза",
+        description: "Пряный ром, кордиал саперави",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Девятый вал",
+        description: "Джин на малине, имбирная содовая",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Кампари Спритц",
+        description: "",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Апероль Спритц",
+        description: "",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Сарти Спритц",
+        description: "",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Сет из 3-х коктейлей",
+        description: "Апероль Спритц, Кампари Спритц, Сарти Спритц",
+        price: "1500 ₽",
+        video: ""
+      }
+    ],
+
+    shots: [
+      {
+        name: "Клубничный чизкейк",
+        description: "Сет из 4 шотов: водка, пюре клубника, лимонный сок, ванильный сироп, сырная пена, печенье",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Арбузные шоты",
+        description: "Сет из 4 шотов: арбуз, водка, лимонный сок, сахарный сироп",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Смородиновые шоты",
+        description: "Белый ром, черная смородина, лимон",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Тропические шоты",
+        description: "Ванильная водка, персиковый ликер, манго, маракуйя",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Шоты Сарти",
+        description: "Аперитив Сарти, джин, ваниль, клубничная пена",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Бубен шотов",
+        description: "Клубничный чизкейк, арбузные шоты, «Влюбленные», «Утро в сосновом лесу»",
+        price: "2500 ₽",
+        video: ""
+      },
+      {
+        name: "Бубен шотов",
+        description: "Тропические шоты, смородиновые шоты, арбузные шоты, киви шоты",
+        price: "2500 ₽",
+        video: ""
+      }
+    ]
+  },
+
+
+  // =========================
+  // СЕВЕРНАЯ
+  // =========================
+
+  severnaya: {
+    title: "Северная, 299А",
+
+    cocktails: [
+      {
+        name: "Прованс",
+        description: "Бурбон, кордиал грейпфрут-жасмин, миндальный ликер, содовая",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Красный закат",
+        description: "Белый ром, кордиал красный апельсин, ликер бузина, сахарный сироп",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Дама в саду",
+        description: "Смородиновая водка, кордиал груша, персиковый ликер, молочный кордиал",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Влюбленные",
+        description: "Текила, кордиал киви, вода алоэ",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Итальянский полдень",
+        description: "Джин, Совиньон Блан, кордиал груша, бобы тонка, клубничная пена",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Утро в сосновом лесу",
+        description: "Ягермейстер, сухой вермут, кордиал клубника",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Девятый вал",
+        description: "Джин на малине, имбирная содовая",
+        price: "650 ₽",
+        video: ""
+      },
+      {
+        name: "Гай Ричи",
+        description: "Два вида виски, банановый ликер, какао-ликер",
+        price: "650 ₽",
+        video: ""
+      }
+    ],
+
+    shots: [
+      {
+        name: "Клубничный чизкейк",
+        description: "Сет из 4 шотов: водка, пюре клубника, лимонный сок, ванильный сироп, сырная пена, печенье",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Арбузные шоты",
+        description: "Сет из 4 шотов: арбуз, водка, лимонный сок, сахарный сироп",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Смородиновые шоты",
+        description: "Белый ром, черная смородина, лимон",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Тропические шоты",
+        description: "Ванильная водка, персиковый ликер, манго, маракуйя",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Шоты Сарти",
+        description: "Аперитив Сарти, джин, ваниль, клубничная пена",
+        price: "700 ₽",
+        video: ""
+      },
+      {
+        name: "Бубен шотов",
+        description: "Клубничный чизкейк, арбузные шоты, «Итальянский полдень», «Дама в саду»",
+        price: "2500 ₽",
+        video: ""
+      },
+      {
+        name: "Бубен арбузных шотов",
+        description: "Арбузные шоты",
+        price: "2500 ₽",
+        video: ""
+      }
+    ]
+  }
+};
+
+
+// =========================
+// ОТКРЫТИЕ МЕНЮ ФИЛИАЛА
+// =========================
+
+function openBranchMenu(branchKey) {
+  currentMenuBranch = branchKey;
+
+  const branch = menuData[currentMenuBranch];
+  if (!branch) {
+    console.error("Филиал не найден:", currentMenuBranch);
+    return;
+  }
+
+  const title = document.getElementById("branchMenuTitle");
+
+  if (title) {
+    title.textContent = branch.title;
+  }
+
+  showScreen("branchMenuScreen");
+
+  showMenuCategory("cocktails");
+}
+
+
+// =========================
+// ВЫБОР КАТЕГОРИИ
+// =========================
+
+function showMenuCategory(category, clickedButton) {
+  const branch = menuData[currentMenuBranch];
+
+  if (!branch) return;
+
+  const items = branch[category] || [];
+
+  document
+    .querySelectorAll(".menu-category-btn")
+    .forEach((button) => {
+      button.classList.remove("active");
+    });
+
+  if (clickedButton) {
+    clickedButton.classList.add("active");
+  }
+
+  renderMenuItems(items);
+}
+
+
+// =========================
+// ОТРИСОВКА ПОЗИЦИЙ МЕНЮ
+// =========================
+
+function renderMenuItems(items) {
+  const container =
+    document.getElementById("branchMenuItems");
+
+  if (!container) {
+    console.error("Не найден branchMenuItems");
+    return;
+  }
+
+  container.innerHTML = "";
+
+  items.forEach((item) => {
+
+    const card = document.createElement("div");
+    card.className = "video-menu-card";
+
+
+    // ВИДЕО
+    if (item.video) {
+      const video = document.createElement("video");
+
+      video.className = "drink-video";
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.autoplay = true;
+      video.preload = "metadata";
+
+      video.src = item.video;
+
+      card.appendChild(video);
+
+      setTimeout(() => {
+        video.play().catch(() => {});
+      }, 100);
+    }
+
+
+    // ИНФОРМАЦИЯ
+    const info = document.createElement("div");
+    info.className = "drink-info";
+
+    const textBox = document.createElement("div");
+
+    const title = document.createElement("h3");
+    title.className = "drink-title";
+    title.textContent = item.name;
+
+    textBox.appendChild(title);
+
+
+    if (item.description) {
+      const description =
+        document.createElement("p");
+
+      description.className =
+        "drink-description";
+
+      description.textContent =
+        item.description;
+
+      textBox.appendChild(description);
+    }
+
+
+    const price =
+      document.createElement("div");
+
+    price.className = "drink-price";
+    price.textContent = item.price;
+
+
+    info.appendChild(textBox);
+    info.appendChild(price);
+
+    card.appendChild(info);
+
+    container.appendChild(card);
+  });
+}
+
+
+
+
+
+    
     function showScreen(screenId) {
       const screens = document.querySelectorAll(".screen");
 
