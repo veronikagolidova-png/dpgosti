@@ -951,6 +951,104 @@
         </button>
       </div>
     </div>
+    <div id="menuScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
+
+  <div class="screen-card">
+    <h2 class="screen-title">Меню</h2>
+
+    <p class="screen-text">
+      Выберите филиал, чтобы посмотреть актуальное меню.
+    </p>
+
+    <div class="menu-grid">
+
+      <button
+        class="menu-btn"
+        onclick="openBranchMenu('pobedy')"
+      >
+        <div class="menu-btn-content">
+          <div class="menu-btn-title">40 Лет Победы, 148/2</div>
+          <div class="menu-btn-text">
+            Коктейли, шоты и сеты
+          </div>
+        </div>
+
+        <div class="arrow">›</div>
+      </button>
+
+      <button
+        class="menu-btn"
+        onclick="openBranchMenu('severnaya')"
+      >
+        <div class="menu-btn-content">
+          <div class="menu-btn-title">Северная, 299А</div>
+          <div class="menu-btn-text">
+            Коктейли, шоты и бубны
+          </div>
+        </div>
+
+        <div class="arrow">›</div>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="branchMenuScreen" class="screen">
+  <button
+    class="back-btn"
+    onclick="showScreen('menuScreen')"
+  >
+    ← Филиалы
+  </button>
+
+  <div class="screen-card">
+
+    <h2
+      class="screen-title"
+      id="branchMenuTitle"
+    >
+      Меню
+    </h2>
+
+    <p class="screen-text">
+      Выберите категорию.
+    </p>
+
+    <div class="menu-categories">
+
+      <button
+        class="menu-category-btn active"
+        onclick="showMenuCategory('cocktails', this)"
+      >
+        Коктейли
+      </button>
+
+      <button
+        class="menu-category-btn"
+        onclick="showMenuCategory('shots', this)"
+      >
+        Шоты
+      </button>
+
+      <button
+        class="menu-category-btn"
+        onclick="showMenuCategory('sets', this)"
+      >
+        Бубны и сеты
+      </button>
+
+    </div>
+
+    <div
+      id="branchMenuItems"
+      class="video-menu-grid"
+    ></div>
+
+  </div>
+</div>
     <div id="eventsScreen" class="screen">
       <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
