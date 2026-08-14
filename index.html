@@ -2004,6 +2004,112 @@ hookah: [
 ]
   }
 };
+    const menuCategoriesByBranch = {
+  severnaya: [
+    { key: "cocktails", title: "Коктейли" },
+    { key: "shots", title: "Шоты" },
+    { key: "sets", title: "Бубны и сеты" },
+
+    { key: "wine", title: "Вино" },
+    { key: "whisky", title: "Виски" },
+    { key: "cognac", title: "Коньяк / бренди" },
+    { key: "tequila", title: "Текила" },
+    { key: "gin", title: "Джин" },
+    { key: "rum", title: "Ром" },
+    { key: "vodka", title: "Водка" },
+    { key: "liqueurs", title: "Вермуты / ликеры" },
+
+    { key: "beer", title: "Пиво" },
+    { key: "soft", title: "Напитки" },
+
+    { key: "tea", title: "Чай" },
+    { key: "snacks", title: "Закуски" },
+
+    { key: "hookah", title: "Кальяны" }
+  ],
+
+  pobedy: [
+    { key: "cocktails", title: "Коктейли" },
+    { key: "shots", title: "Шоты" },
+    { key: "sets", title: "Бубны и сеты" },
+
+    { key: "snacks", title: "Закуски" },
+    { key: "salads", title: "Салаты" },
+    { key: "hot", title: "Горячее" },
+    { key: "pasta", title: "Паста" },
+    { key: "pizza", title: "Пицца" },
+    { key: "desserts", title: "Десерты" },
+
+    { key: "tinctures", title: "Настойки" },
+    { key: "lemonades", title: "Лимонады" },
+
+    { key: "wine", title: "Вино" },
+    { key: "vodka", title: "Водка" },
+    { key: "whisky", title: "Виски" },
+    { key: "cognac", title: "Коньяк / бренди" },
+    { key: "tequila", title: "Текила" },
+    { key: "mezcal", title: "Мескаль" },
+    { key: "gin", title: "Джин" },
+    { key: "rum", title: "Ром" },
+    { key: "liqueurs", title: "Вермуты / аперитивы / ликеры" },
+
+    { key: "beer", title: "Пиво" },
+    { key: "cider", title: "Сидр" },
+    { key: "soft", title: "Прохладительные напитки" },
+
+    { key: "tea", title: "Листовой чай" },
+    { key: "authorTea", title: "Авторский чай" },
+    { key: "coffee", title: "Кофе" },
+
+    { key: "hookah", title: "Кальяны" }
+  ]
+};
+
+
+function renderMenuCategories(branchKey) {
+  const container = document.getElementById("menuCategories");
+
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = "";
+
+  const branchData = menuData[branchKey];
+
+  if (!branchData) {
+    return;
+  }
+
+  const categories = menuCategoriesByBranch[branchKey] || [];
+
+  const availableCategories = categories.filter((category) => {
+    const items = branchData[category.key];
+
+    return Array.isArray(items) && items.length > 0;
+  });
+
+  availableCategories.forEach((category, index) => {
+    const button = document.createElement("button");
+
+    button.className =
+      "menu-category-btn" + (index === 0 ? " active" : "");
+
+    button.textContent = category.title;
+
+    button.onclick = () => {
+      showMenuCategory(category.key, button);
+    };
+
+    container.appendChild(button);
+  });
+
+  if (availableCategories.length > 0) {
+    const firstCategory = availableCategories[0];
+
+    renderMenuItems(branchData[firstCategory.key]);
+  }
+}
 
 
 // =========================
