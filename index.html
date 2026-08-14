@@ -2744,7 +2744,16 @@ function renderMenuItems(items) {
         video.play().catch(() => {});
       }, 100);
     }
+else if (item.image) {
+  const image = document.createElement("img");
 
+  image.className = "drink-video";
+  image.src = item.image;
+  image.alt = item.name;
+  image.loading = "lazy";
+
+  card.appendChild(image);
+}
 
     // ИНФОРМАЦИЯ
     const info = document.createElement("div");
