@@ -2118,6 +2118,7 @@ function renderMenuCategories(branchKey) {
 
 function openBranchMenu(branchKey) {
   currentMenuBranch = branchKey;
+  renderMenuCategories(branchKey);
 
   const branch = menuData[currentMenuBranch];
   if (!branch) {
