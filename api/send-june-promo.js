@@ -24,6 +24,8 @@ const dryRun = confirm !== "yes";
     });
   }
 
+const PHOTO_URL = "https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/grdr%202026-08-26%201412113A2B81D63309.jpg";
+
 const message = `В честь обновления меню мы решили красиво проводить лето и встретить осень 🍸
 
 С сегодняшнего дня и по пятницу включительно приходи в «Давай Покрепче» и получай сразу 2 билета:
@@ -80,12 +82,12 @@ const message = `В честь обновления меню мы решили �
       }
 
       const sendResult = await sendTelegramMessage({
-        token: BOT_TOKEN,
-        chatId: guest.telegram_id,
-        text: message,
-        buttonUrl: MINI_APP_URL
-      });
-
+  token: BOT_TOKEN,
+  chatId: guest.telegram_id,
+  text: message,
+  photoUrl: PHOTO_URL,
+  buttonUrl: MINI_APP_URL
+});
       if (!sendResult.ok) {
         result.errors++;
         result.items.push({
@@ -153,9 +155,15 @@ async function getGuests({ supabaseUrl, supabaseKey, limit }) {
   };
 }
 
-async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
+async function sendTelegramMessage({
+  token,
+  chatId,
+  text,
+  photoUrl,
+  buttonUrl
+}) {
   const response = await fetch(
-    `https://api.telegram.org/bot${token}/sendMessage`,
+    `https://api.telegram.org/bot${token}/sendPhoto`,
     {
       method: "POST",
       headers: {
@@ -163,12 +171,13 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
       },
       body: JSON.stringify({
         chat_id: chatId,
-        text,
+        photo: photoUrl,
+        caption: text,
         reply_markup: {
           inline_keyboard: [
             [
               {
-     text: "Забронировать стол",
+                text: "Забронировать стол",
                 web_app: {
                   url: buttonUrl
                 }
