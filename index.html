@@ -2827,7 +2827,26 @@ else if (item.image) {
         behavior: "smooth"
       });
     }
+function openScreenFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const screen = params.get("screen");
 
+  if (screen === "menu") {
+    showScreen("menuScreen");
+  }
+
+  if (screen === "booking") {
+    showScreen("bookingScreen");
+  }
+
+  if (screen === "events") {
+    showScreen("eventsScreen");
+  }
+
+  if (screen === "card") {
+    showScreen("cardScreen");
+  }
+}
     function openExternal(url) {
       if (tg && tg.openLink) {
         tg.openLink(url);
