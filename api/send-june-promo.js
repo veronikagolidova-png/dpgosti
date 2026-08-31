@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
-  const MINI_APP_URL = "https://dpgosti.vercel.app";
+  const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking";
 
   if (!BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SYNC_SECRET) {
     return res.status(500).json({
@@ -26,17 +26,14 @@ const dryRun = confirm !== "yes";
 
 const PHOTO_URL = "https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/instories_6F2C6860-7A9E-4AB7-A791-877E22B5B5EF.PNG";
 
-const message = `В честь обновления меню мы решили красиво проводить лето и встретить осень 🍸
+const message = `Новинка, которую ждали все… наконец-то на большом экране 🕷️🕸️
 
-С сегодняшнего дня и по пятницу включительно приходи в «Давай Покрепче» и получай сразу 2 билета:
+3 сентября в 20:00 смотрим «Человек-Паук 4» в нашем кинозале 🎬
 
-🍹 Первый можно обменять в субботу 29.08 с 12:00 до 19:00 на коктейль из нашего летнего меню.
+📍 Северная, 299А
+🕗 Начало в 20:00
 
-🍂 Второй можно обменять в субботу 29.08 с 19:00 до 02:00 на коктейль из нового осеннего меню.
-
-Да, можно забрать оба коктейля. Главное — сначала получить карточки 😉
-
-Так что план простой: приходи к нам до пятницы, забирай свои две карточки и увидимся в субботу 🖤`;
+Собирай своих и скорее бронируй столик — мест в кинозале немного 🖤`;
   try {
     const guestsResult = await getGuests({
       supabaseUrl: SUPABASE_URL,
@@ -177,7 +174,7 @@ async function sendTelegramMessage({
           inline_keyboard: [
             [
               {
-                text: "Забронировать стол",
+               text: "🎬 Забронировать стол",
                 web_app: {
                   url: buttonUrl
                 }
