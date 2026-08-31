@@ -24,7 +24,7 @@ const dryRun = confirm !== "yes";
     });
   }
 
-const PHOTO_URL = "https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/grdr%202026-08-26%201412113A2B81D63309.jpg";
+const PHOTO_URL = "https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/instories_6F2C6860-7A9E-4AB7-A791-877E22B5B5EF.PNG";
 
 const message = `В честь обновления меню мы решили красиво проводить лето и встретить осень 🍸
 
