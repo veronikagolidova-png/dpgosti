@@ -78,11 +78,10 @@ const message = `Четверг. Кажется, ты знаешь, что эт�
         continue;
       }
 
-      const sendResult = await sendTelegramMessage({
+     const sendResult = await sendTelegramMessage({
   token: BOT_TOKEN,
   chatId: guest.telegram_id,
   text: message,
-  photoUrl: PHOTO_URL,
   buttonUrl: MINI_APP_URL
 });
       if (!sendResult.ok) {
