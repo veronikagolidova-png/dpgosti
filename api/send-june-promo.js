@@ -191,3 +191,6 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
     ok: true
   };
 }
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
