@@ -1136,7 +1136,55 @@
         </button>
       </div>
     </div>
+<div id="tournamentScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
+  <div class="screen-card">
+    <h2 class="screen-title">Запись на турнир</h2>
+
+    <p class="screen-text">
+      Выбирай игру, оставляй данные — и мы добавим тебя в список участников.
+    </p>
+
+    <div class="form-group">
+      <label class="field-label" for="tournamentName">ФИО</label>
+      <input
+        class="input"
+        id="tournamentName"
+        type="text"
+        placeholder="Иванов Алексей Сергеевич"
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="field-label" for="tournamentPhone">Номер телефона</label>
+      <input
+        class="input"
+        id="tournamentPhone"
+        type="tel"
+        placeholder="+7..."
+      />
+    </div>
+
+    <div class="form-group">
+      <label class="field-label" for="tournamentType">На какой турнир?</label>
+
+      <select class="input" id="tournamentType">
+        <option value="">Выберите турнир</option>
+        <option value="Шахматы">♟ Шахматы</option>
+        <option value="Нарды">🎲 Нарды</option>
+      </select>
+    </div>
+
+    <button
+      class="btn btn-primary"
+      id="tournamentSubmitBtn"
+      onclick="sendTournamentRegistration()"
+    >
+      Записаться на турнир
+    </button>
+  </div>
+</div>
     <div id="reviewsScreen" class="screen">
       <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
