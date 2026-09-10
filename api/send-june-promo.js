@@ -151,15 +151,9 @@ async function getGuests({ supabaseUrl, supabaseKey, limit }) {
   };
 }
 
-async function sendTelegramMessage({
-  token,
-  chatId,
-  text,
-  photoUrl,
-  buttonUrl
-}) {
+async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
   const response = await fetch(
-    `https://api.telegram.org/bot${token}/sendPhoto`,
+    `https://api.telegram.org/bot${token}/sendMessage`,
     {
       method: "POST",
       headers: {
@@ -167,13 +161,12 @@ async function sendTelegramMessage({
       },
       body: JSON.stringify({
         chat_id: chatId,
-        photo: photoUrl,
-        caption: text,
+        text,
         reply_markup: {
           inline_keyboard: [
             [
               {
-               text: "🎬 Забронировать стол",
+                text: "🍷 Забронировать стол",
                 web_app: {
                   url: buttonUrl
                 }
@@ -197,8 +190,4 @@ async function sendTelegramMessage({
   return {
     ok: true
   };
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
