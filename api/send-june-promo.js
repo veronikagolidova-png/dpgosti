@@ -24,7 +24,6 @@ const dryRun = confirm !== "yes";
     });
   }
 
-const PHOTO_URL = "https://pxurhvgqaddfvqatarsv.supabase.co/storage/v1/object/public/menu-videos1/instories_6F2C6860-7A9E-4AB7-A791-877E22B5B5EF.PNG";
 
 const message = `Новинка, которую ждали все… наконец-то на большом экране 🕷️🕸️
 
