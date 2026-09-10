@@ -3457,6 +3457,92 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
         bookingSubmitBtn.textContent = "Отправить заявку";
       }
     }
+    async function sendTournamentRegistration() {
+  hideStatus();
+
+  if (!tg || !tg.initData) {
+    showStatus(
+      "Откройте приложение внутри Telegram, чтобы записаться на турнир.",
+      "error"
+    );
+    return;
+  }
+
+  const name = document
+    .getElementById("tournamentName")
+    .value
+    .trim();
+
+  const phone = document
+    .getElementById("tournamentPhone")
+    .value
+    .trim();
+
+  const tournament = document
+    .getElementById("tournamentType")
+    .value
+    .trim();
+
+  if (!name || !phone || !tournament) {
+    showStatus(
+      "Заполните ФИО, номер телефона и выберите турнир.",
+      "error"
+    );
+    return;
+  }
+
+  const submitBtn =
+    document.getElementById("tournamentSubmitBtn");
+
+  try {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Записываем...";
+
+    const response = await fetch("/api/booking", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        initData: tg.initData,
+        type: "tournament",
+        name,
+        phone,
+        tournament
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(
+        data.error || "Не удалось записаться на турнир"
+      );
+    }
+
+    showStatus(
+      `Готово ✅ Ты записан(а) на турнир: ${tournament}. Мы свяжемся с тобой по деталям.`,
+      "success"
+    );
+
+    document.getElementById("tournamentName").value = "";
+    document.getElementById("tournamentPhone").value = "";
+    document.getElementById("tournamentType").value = "";
+
+  } catch (error) {
+    console.error(error);
+
+    showStatus(
+      error.message ||
+        "Не удалось записаться. Попробуйте ещё раз.",
+      "error"
+    );
+
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Записаться на турнир";
+  }
+}
 async function checkAdminAccess() {
   const user = tg?.initDataUnsafe?.user;
 
