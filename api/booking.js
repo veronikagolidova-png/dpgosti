@@ -19,15 +19,12 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    const body = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
 
     const initData = body.initData;
-    const name = cleanText(body.name);
-    const phone = cleanText(body.phone);
-    const date = cleanText(body.date);
-    const time = cleanText(body.time);
-    const guests = cleanText(body.guests);
-    const comment = cleanText(body.comment);
+    const type = cleanText(body.type) || "booking";
 
     if (!initData) {
       return res.status(400).json({
@@ -45,15 +42,94 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const telegramUser = validation.user || {};
+    const guestLink = getTelegramUserLink(telegramUser);
+
+    // =========================
+    // ЗАПИСЬ НА ТУРНИР
+    // =========================
+
+    if (type === "tournament") {
+      const name = cleanText(body.name);
+      const phone = cleanText(body.phone);
+      const tournament = cleanText(body.tournament);
+
+      if (!name || !phone || !tournament) {
+        return res.status(400).json({
+          ok: false,
+          error: "Заполните ФИО, телефон и выберите турнир"
+        });
+      }
+
+      const message =
+        `♟ НОВАЯ ЗАПИСЬ НА ТУРНИР\n\n` +
+        `ФИО: ${name}\n` +
+        `Телефон: ${phone}\n` +
+        `Турнир: ${tournament}\n\n` +
+        `Telegram: ${telegramUser.username ? "@" + telegramUser.username : "без username"}\n` +
+        `Telegram ID: ${telegramUser.id || "—"}\n\n` +
+        `Источник: Mini App`;
+
+      const inlineKeyboard = [];
+
+      if (guestLink) {
+        inlineKeyboard.push([
+          {
+            text: "Написать участнику",
+            url: guestLink
+          }
+        ]);
+      }
+
+      inlineKeyboard.push([
+        {
+          text: "✅ Запись принята",
+          callback_data: "tournament_done"
+        }
+      ]);
+
+      const telegramResult = await sendTelegramMessage(
+        BOT_TOKEN,
+        BOOKING_CHAT_ID,
+        message,
+        {
+          inline_keyboard: inlineKeyboard
+        }
+      );
+
+      if (!telegramResult.ok) {
+        console.error("Telegram tournament send error:", telegramResult);
+
+        return res.status(500).json({
+          ok: false,
+          error: "Telegram не принял сообщение",
+          telegram_error: telegramResult
+        });
+      }
+
+      return res.status(200).json({
+        ok: true,
+        message: "Tournament registration sent"
+      });
+    }
+
+    // =========================
+    // ОБЫЧНАЯ БРОНЬ
+    // =========================
+
+    const name = cleanText(body.name);
+    const phone = cleanText(body.phone);
+    const date = cleanText(body.date);
+    const time = cleanText(body.time);
+    const guests = cleanText(body.guests);
+    const comment = cleanText(body.comment);
+
     if (!name || !phone || !date || !time || !guests) {
       return res.status(400).json({
         ok: false,
         error: "Заполните имя, телефон, дату, время и количество гостей"
       });
     }
-
-    const telegramUser = validation.user || {};
-    const guestLink = getTelegramUserLink(telegramUser);
 
     const message =
       `🍾 Новая бронь\n\n` +
@@ -108,6 +184,7 @@ module.exports = async function handler(req, res) {
       ok: true,
       message: "Booking sent"
     });
+
   } catch (error) {
     console.error("Booking endpoint error:", error);
 
@@ -135,8 +212,18 @@ function formatDateRu(dateStr) {
   }
 
   const months = [
-    "января", "февраля", "марта", "апреля", "мая", "июня",
-    "июля", "августа", "сентября", "октября", "ноября", "декабря"
+    "января",
+    "февраля",
+    "марта",
+    "апреля",
+    "мая",
+    "июня",
+    "июля",
+    "августа",
+    "сентября",
+    "октября",
+    "ноября",
+    "декабря"
   ];
 
   const year = match[1];
@@ -208,8 +295,14 @@ function validateTelegramInitData(initData, botToken) {
   };
 }
 
-async function sendTelegramMessage(token, chatId, text, replyMarkup = null) {
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+async function sendTelegramMessage(
+  token,
+  chatId,
+  text,
+  replyMarkup = null
+) {
+  const url =
+    `https://api.telegram.org/bot${token}/sendMessage`;
 
   const body = {
     chat_id: chatId,
