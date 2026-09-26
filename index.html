@@ -2791,36 +2791,7 @@ function renderMenuItems(items) {
     card.className = "video-menu-card";
 
 
-    // ВИДЕО
-    if (item.video) {
-      const video = document.createElement("video");
-
-      video.className = "drink-video";
-      video.muted = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.autoplay = true;
-      video.preload = "metadata";
-
-      video.src = item.video;
-
-      card.appendChild(video);
-
-      setTimeout(() => {
-        video.play().catch(() => {});
-      }, 100);
-    }
-else if (item.image) {
-  const image = document.createElement("img");
-
-  image.className = "drink-video";
-  image.src = item.image;
-  image.alt = item.name;
-  image.loading = "lazy";
-
-  card.appendChild(image);
-}
-
+   
     // ИНФОРМАЦИЯ
     const info = document.createElement("div");
     info.className = "drink-info";
