@@ -1,5 +1,6 @@
 const crypto = require("crypto");
-
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(200).json({
@@ -179,7 +180,16 @@ module.exports = async function handler(req, res) {
         telegram_error: telegramResult
       });
     }
-
+await saveBookingToSupabase({
+  telegramId: telegramUser.id || null,
+  name,
+  phone,
+  date,
+  time,
+  branch: cleanText(body.branch),
+  source: cleanText(body.source) || "mini_app",
+  campaign: cleanText(body.campaign) || null
+});
     return res.status(200).json({
       ok: true,
       message: "Booking sent"
@@ -324,4 +334,47 @@ async function sendTelegramMessage(
   const data = await response.json();
 
   return data;
+}
+async function saveBookingToSupabase({
+  telegramId,
+  name,
+  phone,
+  date,
+  time,
+  branch,
+  source,
+  campaign
+}) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Supabase environment variables are not set");
+  }
+
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/bookings`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        telegram_id: telegramId,
+        name: name,
+        phone: phone,
+        booking_date: date,
+        booking_time: time,
+        branch: branch || null,
+        source: source || "mini_app",
+        campaign: campaign || null
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Supabase booking save error:", errorText);
+    throw new Error("Не удалось сохранить бронь в Supabase");
+  }
 }
