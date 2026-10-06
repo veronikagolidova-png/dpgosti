@@ -3189,6 +3189,8 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
       const phone = document.getElementById("registerPhone").value.trim();
       const birthday = document.getElementById("registerBirthday").value.trim();
       const source = document.getElementById("registerSource").value.trim();
+      const linkSource = new URLSearchParams(window.location.search).get("source") || null;
+const linkCampaign = new URLSearchParams(window.location.search).get("campaign") || null;
       const agreement = document.getElementById("registerAgreement").checked;
 
       if (!phone || !birthday || !source) {
@@ -3212,6 +3214,8 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
           },
         body: JSON.stringify({
   initData: tg.initData,
+          linkSource,
+linkCampaign,
   name,
   phone,
   date,
