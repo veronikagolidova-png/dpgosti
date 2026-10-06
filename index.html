@@ -3417,8 +3417,8 @@ const bookingCampaign = new URLSearchParams(window.location.search).get("campaig
   time,
   guests,
   comment: fullComment,
-  source: localStorage.getItem("booking_source") || "mini_app",
-  campaign: localStorage.getItem("booking_campaign") || null
+source: bookingSource,
+campaign: bookingCampaign
 })
         });
 
