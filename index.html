@@ -3201,14 +3201,16 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            initData: tg.initData,
-            fullName,
-            phone,
-            birthday,
-            source,
-            agreement
-          })
+         body: JSON.stringify({
+  initData: tg.initData,
+  name,
+  phone,
+  branch,
+  date,
+  time,
+  guests,
+  comment: fullComment
+})
         });
 
         const data = await response.json();
