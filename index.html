@@ -3189,8 +3189,9 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
       const phone = document.getElementById("registerPhone").value.trim();
       const birthday = document.getElementById("registerBirthday").value.trim();
       const source = document.getElementById("registerSource").value.trim();
-      const linkSource = new URLSearchParams(window.location.search).get("source") || null;
-const linkCampaign = new URLSearchParams(window.location.search).get("campaign") || null;
+      const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get("tgWebAppStartParam") || null;
+const linkSource = new URLSearchParams(window.location.search).get("source") || (startParam ? startParam.split("__")[0] : null);
+const linkCampaign = new URLSearchParams(window.location.search).get("campaign") || (startParam && startParam.includes("__") ? startParam.split("__")[1] : null);
       const agreement = document.getElementById("registerAgreement").checked;
 
       if (!phone || !birthday || !source) {
