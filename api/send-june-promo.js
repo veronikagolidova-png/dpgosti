@@ -16,6 +16,7 @@ module.exports = async function handler(req, res) {
   const key = String(req.query.key || "");
   const confirm = String(req.query.confirm || "");
  const limit = Math.min(Number(req.query.limit || 1000), 1000);
+  const offset = Math.max(Number(req.query.offset || 0), 0);
 const dryRun = confirm !== "yes";
   if (key !== SYNC_SECRET) {
     return res.status(401).json({
@@ -43,10 +44,11 @@ const message = `Два коктейля за 1000 ₽. Да, тебе не по
 📍 «Давай Покрепче», Северная, 299А 🖤`;
   try {
     const guestsResult = await getGuests({
-      supabaseUrl: SUPABASE_URL,
-      supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
-      limit
-    });
+  supabaseUrl: SUPABASE_URL,
+  supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
+  limit,
+  offset
+});
 
     if (!guestsResult.ok) {
       return res.status(500).json({
@@ -130,11 +132,11 @@ function cleanSupabaseUrl(url) {
     .replace(/\/rest\/v1$/, "");
 }
 
-async function getGuests({ supabaseUrl, supabaseKey, limit }) {
+async function getGuests({ supabaseUrl, supabaseKey, limit, offset }) {
   const baseUrl = cleanSupabaseUrl(supabaseUrl);
 
   const response = await fetch(
-    `${baseUrl}/rest/v1/guests?select=id,telegram_id,phone&telegram_id=not.is.null&limit=${limit}`,
+    `${baseUrl}/rest/v1/guests?select=id,telegram_id,phone&telegram_id=not.is.null&limit=${limit}&offset=${offset}`,
     {
       headers: {
         apikey: supabaseKey,
