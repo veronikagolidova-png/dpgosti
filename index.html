@@ -2867,7 +2867,16 @@ function renderMenuItems(items) {
 function openScreenFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const screen = params.get("screen");
+const source = params.get("source");
+const campaign = params.get("campaign");
 
+if (source) {
+  localStorage.setItem("booking_source", source);
+}
+
+if (campaign) {
+  localStorage.setItem("booking_campaign", campaign);
+}
   if (screen === "menu") {
     showScreen("menuScreen");
   }
