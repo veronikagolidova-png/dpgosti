@@ -3388,6 +3388,9 @@ linkCampaign,
       const time = document.getElementById("bookingTime").value.trim();
       const guests = document.getElementById("bookingGuests").value.trim();
       const comment = document.getElementById("bookingComment").value.trim();
+      const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get("tgWebAppStartParam") || null;
+const bookingSource = new URLSearchParams(window.location.search).get("source") || (startParam ? startParam.split("__")[0] : "mini_app");
+const bookingCampaign = new URLSearchParams(window.location.search).get("campaign") || (startParam && startParam.includes("__") ? startParam.split("__")[1] : null);
 
       if (!name || !phone || !branch || !date || !time || !guests) {
         showStatus("Заполните имя, телефон, филиал, дату, время и количество гостей.", "error");
