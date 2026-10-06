@@ -47,6 +47,8 @@ if (
     const rawPhone = cleanText(body.phone);
     const birthday = cleanText(body.birthday);
     const source = cleanText(body.source);
+    const linkSource = cleanText(body.linkSource);
+const linkCampaign = cleanText(body.linkCampaign);
     const agreement = Boolean(body.agreement);
 
     if (!initData) {
@@ -244,6 +246,8 @@ if (
         username: telegramUser.username || null,
         birthday: finalBirthday,
         source,
+        link_source: linkSource || null,
+link_campaign: linkCampaign || null,
         updated_at: new Date().toISOString()
       }
     });
