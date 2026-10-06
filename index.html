@@ -3400,16 +3400,18 @@ const fullName = `${lastName} ${firstName} ${middleName}`;
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            initData: tg.initData,
-            name,
-            phone,
-            branch,
-            date,
-            time,
-            guests,
-            comment: fullComment
-          })
+         body: JSON.stringify({
+  initData: tg.initData,
+  name,
+  phone,
+  branch,
+  date,
+  time,
+  guests,
+  comment: fullComment,
+  source: localStorage.getItem("booking_source") || "mini_app",
+  campaign: localStorage.getItem("booking_campaign") || null
+})
         });
 
         const data = await response.json();
