@@ -2884,7 +2884,11 @@ async function trackAnalytics(eventName, screenName = null) {
     console.warn("Analytics error:", error);
   }
 }
-    let analyticsSelectedMonth = new Date().toISOString().slice(0, 7);
+    let analyticsSelectedMonth = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Moscow",
+  year: "numeric",
+  month: "2-digit"
+}).format(new Date());
 
 function changeAnalyticsMonth(value) {
   analyticsSelectedMonth = value;
