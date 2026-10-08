@@ -2909,7 +2909,52 @@ async function loadAnalyticsDashboard() {
       throw new Error(data.error || "Не удалось получить статистику");
     }
 
-    dashboard.textContent = JSON.stringify(data, null, 2);
+   const stats = Array.isArray(data.stats) ? data.stats : [];
+
+const totals = stats.reduce((sum, day) => {
+  [
+    "app_opens",
+    "menu_opens",
+    "card_opens",
+    "events_opens",
+    "booking_opens",
+    "tournament_opens"
+  ].forEach(key => {
+    sum[key] = (sum[key] || 0) + Number(day[key] || 0);
+  });
+  return sum;
+}, {});
+
+const cards = [
+  ["📱", "Открытий приложения", totals.app_opens],
+  ["🍽️", "Открытий меню", totals.menu_opens],
+  ["💳", "Открытий карты гостя", totals.card_opens],
+  ["🎉", "Открытий мероприятий", totals.events_opens],
+  ["📅", "Открытий бронирования", totals.booking_opens],
+  ["♟️", "Открытий турниров", totals.tournament_opens]
+];
+
+dashboard.innerHTML = `
+  <div style="margin-bottom:18px;font-size:14px;color:#aaa;">
+    Статистика за последние 31 день
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+    ${cards.map(([icon, title, value]) => `
+      <div style="background:#202020;border:1px solid #333;border-radius:16px;padding:16px;min-width:0;">
+        <div style="font-size:26px;margin-bottom:10px;">${icon}</div>
+        <div style="font-size:30px;font-weight:700;color:white;">${value || 0}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:6px;line-height:1.4;">${title}</div>
+      </div>
+    `).join("")}
+  </div>
+
+  <div style="margin-top:20px;color:#aaa;font-size:12px;">
+    Уникальные посетители по дням:
+    ${stats.reduce((sum, day) => sum + Number(day.unique_visitors || 0), 0)}
+    <div style="margin-top:5px;">* Сумма дневных показателей, один человек может учитываться несколько раз.</div>
+  </div>
+`;
   } catch (error) {
     dashboard.textContent = "Ошибка загрузки статистики";
     console.error("Analytics dashboard:", error);
