@@ -2840,7 +2840,35 @@ function renderMenuItems(items) {
 
 
     
+async function trackAnalytics(eventName, screenName = null) {
+  try {
+    const tg = window.Telegram?.WebApp;
+
+    if (!tg?.initData) return;
+
+    await fetch("/api/guest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "analytics",
+        initData: tg.initData,
+        eventName,
+        screenName,
+        source: localStorage.getItem("booking_source") || null,
+        campaign: localStorage.getItem("booking_campaign") || null
+      })
+    });
+  } catch (error) {
+    console.warn("Analytics error:", error);
+  }
+}
+trackAnalytics("app_open");
     function showScreen(screenId) {
+        if (screenId !== "homeScreen") {
+    trackAnalytics("screen_open", screenId);
+  }
       const screens = document.querySelectorAll(".screen");
 
       screens.forEach((screen) => {
