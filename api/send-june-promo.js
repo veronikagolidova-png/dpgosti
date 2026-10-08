@@ -174,7 +174,7 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
              {
   text: "🍷 Забронировать стол",
   web_app: {
-    url: "https://dpgosti.vercel.app/?screen=booking&source=telegram&campaign=cocktails_2_for_1000"
+    url: "https://dpgosti.vercel.app/?screen=booking&source=telegram&campaign=wine_unlimited_oct8"
   }
 }
             ]
