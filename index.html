@@ -2914,7 +2914,8 @@ async function loadAnalyticsDashboard() {
       throw new Error(data.error || "Не удалось получить статистику");
     }
 
-   const stats = Array.isArray(data.stats) ? data.stats : [];
+  const stats = (Array.isArray(data.stats) ? data.stats : [])
+  .filter(day => String(day.day).slice(0, 7) === analyticsSelectedMonth);
 
 const totals = stats.reduce((sum, day) => {
   [
@@ -2940,8 +2941,19 @@ const cards = [
 ];
 
 dashboard.innerHTML = `
+<div style="margin-bottom:20px;">
+  <label style="display:block;color:#aaa;font-size:13px;margin-bottom:8px;">
+    Выберите месяц
+  </label>
+  <input
+    type="month"
+    value="${analyticsSelectedMonth}"
+    onchange="changeAnalyticsMonth(this.value)"
+    style="width:100%;box-sizing:border-box;background:#202020;color:white;border:1px solid #444;border-radius:12px;padding:12px;font-size:16px;"
+  >
+</div>
   <div style="margin-bottom:18px;font-size:14px;color:#aaa;">
-    Статистика за последние 31 день
+Статистика за выбранный месяц
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
