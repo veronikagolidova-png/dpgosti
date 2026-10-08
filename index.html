@@ -2884,6 +2884,38 @@ async function trackAnalytics(eventName, screenName = null) {
     console.warn("Analytics error:", error);
   }
 }
+    
+async function loadAnalyticsDashboard() {
+  const dashboard = document.getElementById("analyticsDashboard");
+  if (!dashboard) return;
+
+  dashboard.textContent = "Загружаем статистику...";
+
+  try {
+    const response = await fetch("/api/guest", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        action: "analytics_summary",
+        initData: tg.initData
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.error || "Не удалось получить статистику");
+    }
+
+    dashboard.textContent = JSON.stringify(data, null, 2);
+  } catch (error) {
+    dashboard.textContent = "Ошибка загрузки статистики";
+    console.error("Analytics dashboard:", error);
+  }
+}
+
 trackAnalytics("app_open");
     function showScreen(screenId) {
         if (screenId !== "homeScreen") {
@@ -2896,6 +2928,10 @@ trackAnalytics("app_open");
       });
 
       document.getElementById(screenId).classList.add("active");
+
+if (screenId === "analyticsScreen") {
+  loadAnalyticsDashboard();
+}
 
       hideStatus();
 
