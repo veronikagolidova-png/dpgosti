@@ -50,6 +50,57 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    if (body.action === "analytics_summary") {
+  const adminResponse = await fetch(
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/admins?telegram_id=eq.${encodeURIComponent(telegramUser.id)}&select=telegram_id&limit=1`,
+    {
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+      }
+    }
+  );
+
+  if (!adminResponse.ok) {
+    return res.status(500).json({
+      ok: false,
+      error: "Не удалось проверить администратора"
+    });
+  }
+
+  const admins = await adminResponse.json();
+
+  if (!Array.isArray(admins) || admins.length === 0) {
+    return res.status(403).json({
+      ok: false,
+      error: "Доступ только для администраторов"
+    });
+  }
+
+  const statsResponse = await fetch(
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/analytics_daily_summary?select=*&order=day.desc&limit=31`,
+    {
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+      }
+    }
+  );
+
+  if (!statsResponse.ok) {
+    return res.status(500).json({
+      ok: false,
+      error: "Не удалось загрузить статистику"
+    });
+  }
+
+  const stats = await statsResponse.json();
+
+  return res.status(200).json({
+    ok: true,
+    stats
+  });
+}
     if (body.action === "analytics") {
       const allowedEvents = [
         "app_open",
