@@ -1243,10 +1243,30 @@
     <button class="btn btn-secondary" onclick="syncGuestsWithIiko()">
   🔄 Синхронизировать с iiko
 </button>
+    
+<button class="btn btn-secondary" onclick="showScreen('analyticsScreen')">
+  📊 Статистика приложения
+</button>
+
   </div>
 </div>
     <div class="status" id="status"></div>
   </div>
+
+<div id="analyticsScreen" class="screen">
+  <button class="back-btn" onclick="showScreen('adminScreen')">
+    ← Назад
+  </button>
+
+  <div class="screen-card">
+    <h2 class="screen-title">📊 Аналитика приложения</h2>
+    <p class="screen-text">Статистика посещений и активности гостей</p>
+
+    <div id="analyticsDashboard">
+      Загрузка статистики...
+    </div>
+  </div>
+</div>
 
   <script>
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
