@@ -2884,7 +2884,12 @@ async function trackAnalytics(eventName, screenName = null) {
     console.warn("Analytics error:", error);
   }
 }
-    
+    let analyticsSelectedMonth = new Date().toISOString().slice(0, 7);
+
+function changeAnalyticsMonth(value) {
+  analyticsSelectedMonth = value;
+  loadAnalyticsDashboard();
+}
 async function loadAnalyticsDashboard() {
   const dashboard = document.getElementById("analyticsDashboard");
   if (!dashboard) return;
