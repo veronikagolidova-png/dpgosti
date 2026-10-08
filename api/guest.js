@@ -50,6 +50,64 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    if (body.action === "analytics") {
+      const allowedEvents = [
+        "app_open",
+        "screen_open"
+      ];
+
+      const allowedScreens = [
+        "homeScreen",
+        "menuScreen",
+        "cardScreen",
+        "bookingScreen",
+        "eventsScreen",
+        "tournamentScreen"
+      ];
+
+      const eventName = String(body.eventName || "");
+      const screenName = String(body.screenName || "");
+
+      if (
+        !allowedEvents.includes(eventName) ||
+        (eventName === "screen_open" && !allowedScreens.includes(screenName))
+      ) {
+        return res.status(400).json({
+          ok: false,
+          error: "Invalid analytics event"
+        });
+      }
+
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/analytics_events`,
+          {
+            method: "POST",
+            headers: {
+              apikey: SUPABASE_SERVICE_ROLE_KEY,
+              Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal"
+            },
+            body: JSON.stringify({
+              telegram_id: telegramUser.id,
+              event_name: eventName,
+              screen_name: eventName === "screen_open" ? screenName : null,
+              source: body.source || null,
+              campaign: body.campaign || null
+            })
+          }
+        );
+
+        return res.status(response.ok ? 200 : 500).json({
+          ok: response.ok
+        });
+      } catch (error) {
+        console.error("Analytics error:", error);
+        return res.status(500).json({ ok: false });
+      }
+    }
+
     const guestResult = await findGuestByTelegramId({
       supabaseUrl: SUPABASE_URL,
       supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
