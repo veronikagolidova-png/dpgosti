@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
   }
 
   const statsResponse = await fetch(
-    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/analytics_daily_summary?select=*&order=day.desc&limit=31`,
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/analytics_daily_summary?select=*&order=day.desc&limit=365`,
     {
       headers: {
         apikey: SUPABASE_SERVICE_ROLE_KEY,
