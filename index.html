@@ -3746,23 +3746,49 @@ async function findAdminGuest() {
   }
 }
     async function syncGuestsWithIiko() {
+  const batchSize = 15;
+  const maxGuests = 1000;
+  let checked = 0;
+  let updated = 0;
+  let errors = 0;
+  let notFound = 0;
+  const button = document.querySelector('button[onclick="syncGuestsWithIiko()"]');
+  if (button) button.disabled = true;
   try {
-    showStatus("Запускаем синхронизацию...");
-
-    const response = await fetch("/api/sync-guests?key=dp123&limit=1000");
-    const data = await response.json();
-
-    if (!response.ok || !data.ok) {
-      throw new Error(data.error || "Ошибка синхронизации");
+    while (checked < maxGuests) {
+      showStatus(`Синхронизируем с iiko... Проверено: ${checked}, обновлено: ${updated}`);
+      const response = await fetch(
+        `/api/sync-guests?key=dp123&limit=${batchSize}&offset=${checked}`
+      );
+      const raw = await response.text();
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (_) {
+        throw new Error("Сервер прервал синхронизацию. Уже обработано: " + checked + ". Попробуйте позже.");
+      }
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Ошибка синхронизации");
+      }
+      const count = Number(data.checked || 0);
+      checked += count;
+      updated += Number(data.updated || 0);
+      errors += Number(data.errors || 0);
+      notFound += Number(data.notFoundInIiko || 0);
+      if (count < batchSize || count === 0) break;
     }
-
     showStatus(
-      `Синхронизация готова ✅ Проверено: ${data.checked}, обновлено: ${data.updated}`,
-      "success"
+      `Синхронизация завершена ✅ Проверено: ${checked}, обновлено: ${updated}, не найдено в iiko: ${notFound}, ошибок: ${errors}`,
+      errors ? "error" : "success"
     );
   } catch (error) {
     console.error(error);
-    showStatus(error.message || "Не удалось синхронизировать гостей.", "error");
+    showStatus(
+      `Синхронизация остановлена. Проверено: ${checked}, обновлено: ${updated}. ${error.message || "Ошибка соединения."}`,
+      "error"
+    );
+  } finally {
+    if (button) button.disabled = false;
   }
 }
     shareBtn.addEventListener("click", () => {
