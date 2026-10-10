@@ -123,11 +123,30 @@ module.exports = async function handler(req, res) {
     .map(([source, count]) => ({ source, count }))
     .sort((a, b) => b.count - a.count);
 
+  const guestsResponse = await fetch(
+    `${SUPABASE_URL.replace(/\\/$/, "")}/rest/v1/guests?select=source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
+    { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
+  );
+  if (!guestsResponse.ok) {
+    return res.status(500).json({ ok: false, error: "Не удалось загрузить регистрации карт" });
+  }
+  const registeredGuests = await guestsResponse.json();
+  const guestSourceCounts = {};
+  for (const guest of registeredGuests) {
+    const source = String(guest.source || "").trim() || "Не указано";
+    guestSourceCounts[source] = (guestSourceCounts[source] || 0) + 1;
+  }
+  const guestSources = Object.entries(guestSourceCounts)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+
   return res.status(200).json({
     ok: true,
     stats,
     eventBookings,
-    bookingSources
+    bookingSources,
+    registeredCards: registeredGuests.length,
+    guestSources
   });
 }
     if (body.action === "analytics") {
