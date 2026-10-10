@@ -6,7 +6,8 @@ module.exports = async function handler(req, res) {
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
   const key = String(req.query.key || "");
-  const limit = Math.min(Number(req.query.limit || 1000), 1000);
+  const limit = Math.min(Math.max(Number(req.query.limit || 15) || 15, 1), 20);
+  const offset = Math.max(Number(req.query.offset || 0) || 0, 0);
 
   if (key !== SYNC_SECRET) {
     return res.status(401).json({ ok: false, error: "Wrong key" });
@@ -22,12 +23,16 @@ module.exports = async function handler(req, res) {
     const guests = await getSupabaseGuests({
       supabaseUrl: SUPABASE_URL,
       supabaseKey: SUPABASE_SERVICE_ROLE_KEY,
-      limit
+      limit,
+      offset
     });
 
     const result = {
       ok: true,
       checked: guests.length,
+      offset,
+      limit,
+      hasMore: guests.length === limit,
       updated: 0,
       skippedNoPhone: 0,
       notFoundInIiko: 0,
@@ -116,13 +121,15 @@ function cleanSupabaseUrl(url) {
   return String(url || "").replace(/\/$/, "").replace(/\/rest\/v1$/, "");
 }
 
-async function getSupabaseGuests({ supabaseUrl, supabaseKey, limit }) {
+async function getSupabaseGuests({ supabaseUrl, supabaseKey, limit, offset }) {
   const baseUrl = cleanSupabaseUrl(supabaseUrl);
 
   const url =
     `${baseUrl}/rest/v1/guests` +
     `?select=*` +
     `&phone=not.is.null` +
+    `&order=id.asc` +
+    `&offset=${offset}` +
     `&limit=${limit}`;
 
   const response = await fetch(url, {
