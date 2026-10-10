@@ -3345,8 +3345,19 @@ const linkSource = new URLSearchParams(window.location.search).get("source") || 
 const linkCampaign = new URLSearchParams(window.location.search).get("campaign") || (startParam && startParam.includes("__") ? startParam.split("__")[1] : null);
       const agreement = document.getElementById("registerAgreement").checked;
 
-      if (!phone || !birthday || !source) {
-        showStatus("Заполните ФИО, телефон, дату рождения и откуда узнали о нас.", "error");
+      if (!phone) {
+        showStatus("Укажите номер телефона.", "error");
+        document.getElementById("registerPhone").focus();
+        return;
+      }
+      if (!birthday) {
+        showStatus("Укажите дату рождения.", "error");
+        document.getElementById("registerBirthday").focus();
+        return;
+      }
+      if (!source) {
+        showStatus("Выберите, откуда узнали о нас.", "error");
+        document.getElementById("registerSource").focus();
         return;
       }
 
