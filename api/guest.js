@@ -96,9 +96,28 @@ module.exports = async function handler(req, res) {
 
   const stats = await statsResponse.json();
 
+  const month = /^\\d{4}-(0[1-9]|1[0-2])$/.test(String(body.month || ""))
+    ? String(body.month)
+    : new Date().toISOString().slice(0, 7);
+  const [year, monthNumber] = month.split("-").map(Number);
+  const nextMonth = new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 10);
+  const bookingsResponse = await fetch(
+    `${SUPABASE_URL.replace(/\\/$/, "")}/rest/v1/bookings?select=campaign&campaign=in.(twilight_2026_10_20,ufc_2026_10_24)&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
+    { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
+  );
+  if (!bookingsResponse.ok) {
+    return res.status(500).json({ ok: false, error: "Не удалось загрузить бронирования мероприятий" });
+  }
+  const bookings = await bookingsResponse.json();
+  const eventBookings = {
+    twilight: bookings.filter(row => row.campaign === "twilight_2026_10_20").length,
+    ufc: bookings.filter(row => row.campaign === "ufc_2026_10_24").length
+  };
+
   return res.status(200).json({
     ok: true,
-    stats
+    stats,
+    eventBookings
   });
 }
     if (body.action === "analytics") {
@@ -112,8 +131,7 @@ module.exports = async function handler(req, res) {
         "menuScreen",
         "cardScreen",
         "bookingScreen",
-        "eventsScreen",
-        "tournamentScreen"
+        "eventsScreen"
       ];
 
       const eventName = String(body.eventName || "");
