@@ -3505,14 +3505,14 @@ const linkCampaign = new URLSearchParams(window.location.search).get("campaign")
           button.className = "btn btn-primary";
           button.textContent = event.button_text;
 
-          button.addEventListener("click", () => {
-            if (event.button_url) {
-              openExternal(event.button_url);
-            } else {
-              showScreen("bookingScreen");
-            }
-          });
-
+         button.addEventListener("click", () => {
+  if (event.button_url) {
+    openExternal(event.button_url);
+  } else {
+    window.selectedBookingEvent = event.title || null;
+    showScreen("bookingScreen");
+  }
+});
           card.appendChild(button);
         }
 
