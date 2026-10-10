@@ -3752,6 +3752,7 @@ async function findAdminGuest() {
   let updated = 0;
   let errors = 0;
   let notFound = 0;
+  const errorReasons = {};
   const button = document.querySelector('button[onclick="syncGuestsWithIiko()"]');
   if (button) button.disabled = true;
   try {
@@ -3775,10 +3776,23 @@ async function findAdminGuest() {
       updated += Number(data.updated || 0);
       errors += Number(data.errors || 0);
       notFound += Number(data.notFoundInIiko || 0);
+      for (const item of (data.items || [])) {
+        if (item.status !== "error") continue;
+        const message = String(item.error || "").toLowerCase();
+        const reason = message.includes("birthday") || message.includes("date/time") || message.includes("date") ? "Дата рождения / формат даты"
+          : message.includes("column") || message.includes("schema") || message.includes("could not find") ? "Поля базы данных"
+          : message.includes("permission") || message.includes("unauthorized") || message.includes("jwt") ? "Права доступа к базе"
+          : message.includes("429") || message.includes("too many") ? "Лимит запросов"
+          : message.includes("timeout") || message.includes("fetch failed") ? "Сеть / тайм-аут"
+          : message.includes("duplicate") || message.includes("unique") ? "Дублирование данных"
+          : "Другая ошибка";
+        errorReasons[reason] = (errorReasons[reason] || 0) + 1;
+      }
       if (count < batchSize || count === 0) break;
     }
+    const details = Object.entries(errorReasons).sort((a,b) => b[1]-a[1]).map(([reason,count]) => `${reason}: ${count}`).join("; ");
     showStatus(
-      `Синхронизация завершена ✅ Проверено: ${checked}, обновлено: ${updated}, не найдено в iiko: ${notFound}, ошибок: ${errors}`,
+      `Синхронизация завершена. Проверено: ${checked}, обновлено: ${updated}, не найдено в iiko: ${notFound}, ошибок: ${errors}${details ? ". Причины: " + details : ""}`,
       errors ? "error" : "success"
     );
   } catch (error) {
