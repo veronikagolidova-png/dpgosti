@@ -2882,6 +2882,8 @@ const totals = stats.reduce((sum, day) => {
 
 const eventBookings = data.eventBookings || {};
 const bookingSources = Array.isArray(data.bookingSources) ? data.bookingSources : [];
+const registeredCards = Number(data.registeredCards || 0);
+const guestSources = Array.isArray(data.guestSources) ? data.guestSources : [];
 const sourceNames = {
   instagram: "Instagram", test_instagram: "Instagram (тест)",
   telegram: "Telegram", vk: "ВКонтакте",
@@ -2935,6 +2937,19 @@ dashboard.innerHTML = `
     ].map(([icon, title, value]) => `<div style="background:#202020;border:1px solid #333;border-radius:16px;padding:16px;min-width:0;"><div style="font-size:26px;margin-bottom:10px;">${icon}</div><div style="font-size:30px;font-weight:700;color:white;">${value}</div><div style="font-size:12px;color:#aaa;margin-top:6px;line-height:1.4;">${title}</div></div>`).join("")}
   </div>
   <div style="margin-top:8px;color:#aaa;font-size:12px;">Количество сохранённых броней за выбранный месяц.</div>
+
+  <div style="margin-top:24px;margin-bottom:12px;font-size:16px;font-weight:700;color:white;">Регистрация карт гостя</div>
+  <div style="background:#202020;border:1px solid #333;border-radius:16px;padding:16px;margin-bottom:16px;">
+    <div style="font-size:12px;color:#aaa;margin-bottom:8px;">Новых карт за выбранный месяц</div>
+    <div style="font-size:32px;font-weight:700;color:white;">${registeredCards}</div>
+  </div>
+  <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Откуда узнали о нас — ответы гостей</div>
+  ${guestSources.length ? guestSources.map(row => {
+    const count = Number(row.count || 0);
+    const percentage = registeredCards ? Math.round(count / registeredCards * 100) : 0;
+    return `<div style="margin-bottom:14px;"><div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;font-size:14px;"><span>${escapeAnalyticsHtml(row.source)}</span><span>${count} · ${percentage}%</span></div><div style="height:7px;background:#333;border-radius:8px;overflow:hidden;"><div style="height:100%;width:${percentage}%;background:#d62828;border-radius:8px;"></div></div></div>`;
+  }).join("") : '<div style="color:#aaa;font-size:13px;">За этот месяц новых карт пока нет.</div>'}
+  <div style="color:#aaa;font-size:12px;margin-bottom:20px;">Учитываются ответы, которые гости сами выбрали при регистрации карты, а не источник ссылки.</div>
 
   <div style="margin-top:24px;margin-bottom:10px;font-size:16px;font-weight:700;color:white;">Откуда приходят бронирования</div>
   <div style="color:#aaa;font-size:12px;margin-bottom:12px;">Сохранённые бронирования за выбранный месяц: ${sourceTotal}</div>
