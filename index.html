@@ -818,13 +818,7 @@
           </div>
           <div class="arrow">›</div>
         </button>
-<button class="menu-btn" onclick="showScreen('tournamentScreen')">
-  <div class="menu-btn-content">
-    <div class="menu-btn-title">♟ Записаться на турнир</div>
-    <div class="menu-btn-text">Шахматы или нарды — выбирай своё</div>
-  </div>
-  <div class="arrow">›</div>
-</button>
+
         <button class="menu-btn" onclick="showScreen('reviewsScreen')">
           <div class="menu-btn-content">
             <div class="menu-btn-title">Оставить отзыв</div>
@@ -1136,56 +1130,7 @@
         </button>
       </div>
     </div>
-<div id="tournamentScreen" class="screen">
-  <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
-
-  <div class="screen-card">
-    <h2 class="screen-title">Запись на турнир</h2>
-
-    <p class="screen-text">
-      Выбирай игру, оставляй данные — и мы добавим тебя в список участников.
-    </p>
-
-    <div class="form-group">
-      <label class="field-label" for="tournamentName">ФИО</label>
-      <input
-        class="input"
-        id="tournamentName"
-        type="text"
-        placeholder="Иванов Алексей Сергеевич"
-      />
-    </div>
-
-    <div class="form-group">
-      <label class="field-label" for="tournamentPhone">Номер телефона</label>
-      <input
-        class="input"
-        id="tournamentPhone"
-        type="tel"
-        placeholder="+7..."
-      />
-    </div>
-
-    <div class="form-group">
-      <label class="field-label" for="tournamentType">На какой турнир?</label>
-
-      <select class="input" id="tournamentType">
-        <option value="">Выберите турнир</option>
-        <option value="Шахматы">♟ Шахматы</option>
-        <option value="Нарды">🎲 Нарды</option>
-      </select>
-    </div>
-
-    <button
-      class="btn btn-primary"
-      id="tournamentSubmitBtn"
-      onclick="sendTournamentRegistration()"
-    >
-      Записаться на турнир
-    </button>
-  </div>
-</div>
-    <div id="reviewsScreen" class="screen">
+<div id="reviewsScreen" class="screen">
       <button class="back-btn" onclick="showScreen('homeScreen')">← Назад</button>
 
       <div class="screen-card">
@@ -2908,7 +2853,8 @@ async function loadAnalyticsDashboard() {
       },
       body: JSON.stringify({
         action: "analytics_summary",
-        initData: tg.initData
+        initData: tg.initData,
+        month: analyticsSelectedMonth
       })
     });
 
@@ -2927,21 +2873,21 @@ const totals = stats.reduce((sum, day) => {
     "menu_opens",
     "card_opens",
     "events_opens",
-    "booking_opens",
-    "tournament_opens"
+    "booking_opens"
   ].forEach(key => {
     sum[key] = (sum[key] || 0) + Number(day[key] || 0);
   });
   return sum;
 }, {});
 
+const eventBookings = data.eventBookings || {};
+
 const cards = [
   ["📱", "Открытий приложения", totals.app_opens],
   ["🍽️", "Открытий меню", totals.menu_opens],
   ["💳", "Открытий карты гостя", totals.card_opens],
   ["🎉", "Открытий мероприятий", totals.events_opens],
-  ["📅", "Открытий бронирования", totals.booking_opens],
-  ["♟️", "Открытий турниров", totals.tournament_opens]
+  ["📅", "Открытий бронирования", totals.booking_opens]
 ];
 
 dashboard.innerHTML = `
@@ -2969,6 +2915,15 @@ dashboard.innerHTML = `
       </div>
     `).join("")}
   </div>
+
+  <div style="margin-top:22px;margin-bottom:12px;font-size:16px;font-weight:700;color:white;">Бронирования мероприятий</div>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+    ${[
+      ["🎬", "Сумерки · 20 октября", eventBookings.twilight || 0],
+      ["🥊", "UFC · 24 октября", eventBookings.ufc || 0]
+    ].map(([icon, title, value]) => `<div style="background:#202020;border:1px solid #333;border-radius:16px;padding:16px;min-width:0;"><div style="font-size:26px;margin-bottom:10px;">${icon}</div><div style="font-size:30px;font-weight:700;color:white;">${value}</div><div style="font-size:12px;color:#aaa;margin-top:6px;line-height:1.4;">${title}</div></div>`).join("")}
+  </div>
+  <div style="margin-top:8px;color:#aaa;font-size:12px;">Количество сохранённых броней за выбранный месяц.</div>
 
   <div style="margin-top:20px;color:#aaa;font-size:12px;">
     Уникальные посетители по дням:
@@ -3596,93 +3551,7 @@ campaign: eventCampaign || bookingCampaign
         bookingSubmitBtn.textContent = "Отправить заявку";
       }
     }
-    async function sendTournamentRegistration() {
-  hideStatus();
-
-  if (!tg || !tg.initData) {
-    showStatus(
-      "Откройте приложение внутри Telegram, чтобы записаться на турнир.",
-      "error"
-    );
-    return;
-  }
-
-  const name = document
-    .getElementById("tournamentName")
-    .value
-    .trim();
-
-  const phone = document
-    .getElementById("tournamentPhone")
-    .value
-    .trim();
-
-  const tournament = document
-    .getElementById("tournamentType")
-    .value
-    .trim();
-
-  if (!name || !phone || !tournament) {
-    showStatus(
-      "Заполните ФИО, номер телефона и выберите турнир.",
-      "error"
-    );
-    return;
-  }
-
-  const submitBtn =
-    document.getElementById("tournamentSubmitBtn");
-
-  try {
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Записываем...";
-
-    const response = await fetch("/api/booking", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        initData: tg.initData,
-        type: "tournament",
-        name,
-        phone,
-        tournament
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.ok) {
-      throw new Error(
-        data.error || "Не удалось записаться на турнир"
-      );
-    }
-
-    showStatus(
-      `Готово ✅ Ты записан(а) на турнир: ${tournament}. Мы свяжемся с тобой по деталям.`,
-      "success"
-    );
-
-    document.getElementById("tournamentName").value = "";
-    document.getElementById("tournamentPhone").value = "";
-    document.getElementById("tournamentType").value = "";
-
-  } catch (error) {
-    console.error(error);
-
-    showStatus(
-      error.message ||
-        "Не удалось записаться. Попробуйте ещё раз.",
-      "error"
-    );
-
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Записаться на турнир";
-  }
-}
-async function checkAdminAccess() {
+    async function checkAdminAccess() {
   const user = tg?.initDataUnsafe?.user;
 
   if (!user || !user.id || !adminMenuBtn) {
