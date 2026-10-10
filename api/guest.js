@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
     .sort((a, b) => b.count - a.count);
 
   const guestsResponse = await fetch(
-    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/guests?select=source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/guests?select=source,link_source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
     { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
   );
   if (!guestsResponse.ok) {
@@ -139,6 +139,14 @@ module.exports = async function handler(req, res) {
   const guestSources = Object.entries(guestSourceCounts)
     .map(([source, count]) => ({ source, count }))
     .sort((a, b) => b.count - a.count);
+  const cardLinkCounts = {};
+  for (const guest of registeredGuests) {
+    const linkSource = String(guest.link_source || "").trim() || "Без отслеживаемой ссылки";
+    cardLinkCounts[linkSource] = (cardLinkCounts[linkSource] || 0) + 1;
+  }
+  const cardLinkSources = Object.entries(cardLinkCounts)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
 
   return res.status(200).json({
     ok: true,
@@ -146,7 +154,8 @@ module.exports = async function handler(req, res) {
     eventBookings,
     bookingSources,
     registeredCards: registeredGuests.length,
-    guestSources
+    guestSources,
+    cardLinkSources
   });
 }
     if (body.action === "analytics") {
