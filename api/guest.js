@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
     .sort((a, b) => b.count - a.count);
 
   const guestsResponse = await fetch(
-    `${SUPABASE_URL.replace(/\\/$/, "")}/rest/v1/guests?select=source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/guests?select=source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
     { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
   );
   if (!guestsResponse.ok) {
