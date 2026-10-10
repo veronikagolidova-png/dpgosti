@@ -102,7 +102,7 @@ module.exports = async function handler(req, res) {
   const [year, monthNumber] = month.split("-").map(Number);
   const nextMonth = new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 10);
   const bookingsResponse = await fetch(
-    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/bookings?select=campaign&campaign=in.(twilight_2026_10_20,ufc_2026_10_24)&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/bookings?select=campaign,source&created_at=gte.${month}-01&created_at=lt.${nextMonth}&limit=10000`,
     { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } }
   );
   if (!bookingsResponse.ok) {
@@ -114,10 +114,20 @@ module.exports = async function handler(req, res) {
     ufc: bookings.filter(row => row.campaign === "ufc_2026_10_24").length
   };
 
+  const sourceCounts = {};
+  for (const row of bookings) {
+    const source = String(row.source || "mini_app").trim().toLowerCase() || "mini_app";
+    sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+  }
+  const bookingSources = Object.entries(sourceCounts)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count);
+
   return res.status(200).json({
     ok: true,
     stats,
-    eventBookings
+    eventBookings,
+    bookingSources
   });
 }
     if (body.action === "analytics") {
