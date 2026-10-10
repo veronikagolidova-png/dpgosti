@@ -148,6 +148,18 @@ module.exports = async function handler(req, res) {
     .map(([source, count]) => ({ source, count }))
     .sort((a, b) => b.count - a.count);
 
+  const reviewsResponse = await fetch(
+    `${SUPABASE_URL.replace(/\/$/, "")}/rest/v1/analytics_events?select=id&event_name=eq.screen_open&screen_name=eq.reviewsScreen&created_at=gte.${month}-01&created_at=lt.${nextMonth}`,
+    { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`, Prefer: "count=exact" } }
+  );
+  if (!reviewsResponse.ok) {
+    return res.status(500).json({ ok: false, error: "Не удалось загрузить статистику отзывов" });
+  }
+  const reviewContentRange = reviewsResponse.headers.get("content-range") || "";
+  const reviewCountHeader = reviewContentRange.split("/").pop();
+  const reviewRows = await reviewsResponse.json();
+  const reviewButtonClicks = /^\d+$/.test(reviewCountHeader) ? Number(reviewCountHeader) : reviewRows.length;
+
   return res.status(200).json({
     ok: true,
     stats,
@@ -155,7 +167,8 @@ module.exports = async function handler(req, res) {
     bookingSources,
     registeredCards: registeredGuests.length,
     guestSources,
-    cardLinkSources
+    cardLinkSources,
+    reviewButtonClicks
   });
 }
     if (body.action === "analytics") {
@@ -169,7 +182,8 @@ module.exports = async function handler(req, res) {
         "menuScreen",
         "cardScreen",
         "bookingScreen",
-        "eventsScreen"
+        "eventsScreen",
+        "reviewsScreen"
       ];
 
       const eventName = String(body.eventName || "");
