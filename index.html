@@ -3545,7 +3545,7 @@ const bookingCampaign = new URLSearchParams(window.location.search).get("campaig
         return;
       }
 
-      const fullComment = `Филиал: ${branch}${comment ? "\nКомментарий гостя: " + comment : ""}`;
+      const fullComment = `Филиал: ${branch}${window.selectedBookingEvent ? "\nМероприятие: " + window.selectedBookingEvent : ""}${comment ? "\nКомментарий гостя: " + comment : ""}`;
 
       try {
         bookingSubmitBtn.disabled = true;
