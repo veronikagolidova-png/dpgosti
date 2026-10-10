@@ -2883,6 +2883,7 @@ const totals = stats.reduce((sum, day) => {
 const eventBookings = data.eventBookings || {};
 const bookingSources = Array.isArray(data.bookingSources) ? data.bookingSources : [];
 const registeredCards = Number(data.registeredCards || 0);
+const reviewButtonClicks = Number(data.reviewButtonClicks || 0);
 const guestSources = Array.isArray(data.guestSources) ? data.guestSources : [];
 const cardLinkSources = Array.isArray(data.cardLinkSources) ? data.cardLinkSources : [];
 const sourceNames = {
@@ -2901,7 +2902,8 @@ const cards = [
   ["🍽️", "Открытий меню", totals.menu_opens],
   ["💳", "Открытий карты гостя", totals.card_opens],
   ["🎉", "Открытий мероприятий", totals.events_opens],
-  ["📅", "Открытий бронирования", totals.booking_opens]
+  ["📅", "Открытий бронирования", totals.booking_opens],
+  ["⭐", "Нажатий «Оставить отзыв»", reviewButtonClicks]
 ];
 
 dashboard.innerHTML = `
