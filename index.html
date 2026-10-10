@@ -3539,7 +3539,13 @@ const linkCampaign = new URLSearchParams(window.location.search).get("campaign")
       const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get("tgWebAppStartParam") || null;
 const bookingSource = new URLSearchParams(window.location.search).get("source") || (startParam ? startParam.split("__")[0] : "mini_app");
 const bookingCampaign = new URLSearchParams(window.location.search).get("campaign") || (startParam && startParam.includes("__") ? startParam.split("__")[1] : null);
-
+const eventCampaign = window.selectedBookingEvent
+  ? (window.selectedBookingEvent.toLowerCase().includes("сумерки")
+      ? "twilight_2026_10_20"
+      : window.selectedBookingEvent.toLowerCase().includes("ufc")
+        ? "ufc_2026_10_24"
+        : "other_event")
+  : null;
       if (!name || !phone || !branch || !date || !time || !guests) {
         showStatus("Заполните имя, телефон, филиал, дату, время и количество гостей.", "error");
         return;
@@ -3566,7 +3572,7 @@ const bookingCampaign = new URLSearchParams(window.location.search).get("campaig
   guests,
   comment: fullComment,
 source: bookingSource,
-campaign: bookingCampaign
+campaign: eventCampaign || bookingCampaign
 })
         });
 
