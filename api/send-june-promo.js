@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
- const MINI_APP_URL = "https://dpgosti.vercel.app";
+ const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking&source=telegram_mailing&campaign=twilight_2026_10_20";
 
   if (!BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SYNC_SECRET) {
     return res.status(500).json({
@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
   const key = String(req.query.key || "");
   const confirm = String(req.query.confirm || "");
- const limit = Math.min(Number(req.query.limit || 1000), 1000);
+ const limit = Math.min(Math.max(Number(req.query.limit || 20) || 20, 1), 20);
   const offset = Math.max(Number(req.query.offset || 0), 0);
 const dryRun = confirm !== "yes";
   if (key !== SYNC_SECRET) {
@@ -27,17 +27,7 @@ const dryRun = confirm !== "yes";
 
 
 
-  const message = `🍷 Сегодня тот самый вечер, когда одного бокала мало.
-
-В «Давай Покрепче» снова винный безлимит!
-
-Грузинское вино, любимая компания и вечер, который не хочется заканчивать.
-
-Всего 1 500 ₽ за вино льется рекой.
-
-Собирай своих и приходи отдыхать. А столик лучше забронировать заранее 😉
-
-📍 40 Лет Победы 148/2`;
+  const message = "Эдвард или Джейкоб? Кажется, пора снова определиться 🩸🌙\n\nДа-да, мы устраиваем кинопросмотр тех самых «Сумерек»!\n\n20 октября собираемся в нашем кинозале, чтобы снова пережить историю Беллы, Эдварда и Джейкоба, вспомнить любимые моменты и немного поностальгировать 🖤\n\nБольшой экран, любимые коктейли, кальяны и атмосфера Форкса — идеальный план на вечер.\n\n🎬 20 октября | 20:00\n📍 Северная, 299А — кинозал\n\nБронируй стол заранее!";
 
   try {
     const guestsResult = await getGuests({
@@ -61,6 +51,9 @@ const dryRun = confirm !== "yes";
       ok: true,
       mode: dryRun ? "dry_run" : "send",
       checked: guests.length,
+      offset,
+      limit,
+      hasMore: guests.length === limit,
       wouldSend: 0,
       sent: 0,
       skippedNoTelegramId: 0,
@@ -133,7 +126,7 @@ async function getGuests({ supabaseUrl, supabaseKey, limit, offset }) {
   const baseUrl = cleanSupabaseUrl(supabaseUrl);
 
   const response = await fetch(
-    `${baseUrl}/rest/v1/guests?select=id,telegram_id,phone&telegram_id=not.is.null&limit=${limit}&offset=${offset}`,
+    `${baseUrl}/rest/v1/guests?select=id,telegram_id,phone&telegram_id=not.is.null&order=id.asc&limit=${limit}&offset=${offset}`,
     {
       headers: {
         apikey: supabaseKey,
@@ -172,9 +165,9 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
           inline_keyboard: [
             [
              {
-  text: "🍷 Забронировать стол",
+  text: "🎬 Забронировать стол",
   web_app: {
-    url: "https://dpgosti.vercel.app/?screen=booking&source=telegram&campaign=wine_unlimited_oct8"
+    url: buttonUrl
   }
 }
             ]
