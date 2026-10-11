@@ -26,6 +26,50 @@ const dryRun = confirm !== "yes";
   }
 
 
+  // One browser tab orchestrates short requests, avoiding Vercel timeouts.
+  if (String(req.query.run || "") === "all") {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    const safeKey = JSON.stringify(key).replace(/</g, "\\u003c");
+    return res.status(200).send(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рассылка Сумерки</title><style>body{font:17px Arial,sans-serif;max-width:600px;margin:50px auto;padding:20px;line-height:1.5}h1{font-size:26px}#status{white-space:pre-line}button{padding:12px 20px;font-size:16px}</style></head><body><h1>Рассылка «Сумерки»</h1><p>Не закрывайте эту вкладку до завершения. Отправка идёт партиями по 20 человек.</p><p id="status">Подготовка…</p><button id="resume" hidden>Продолжить</button><script>
+const secret=${safeKey};
+const storageKey="twilight_2026_10_20_mailing_next_offset";
+const initialOffset=Number(new URLSearchParams(location.search).get("offset")||20);
+let offset=Math.max(initialOffset,Number(localStorage.getItem(storageKey)||initialOffset));
+let sent=0, errors=0, checked=0;
+const status=document.getElementById("status");
+const button=document.getElementById("resume");
+let running=false;
+async function run(){
+ if(running)return;
+ running=true;button.hidden=true;
+ try{
+  while(true){
+   status.textContent="Обработано в этом запуске: "+checked+"\\nОтправлено: "+sent+"\\nОшибок: "+errors+"\\nСледующая позиция: "+offset;
+   const url="/api/send-june-promo?key="+encodeURIComponent(secret)+"&confirm=yes&limit=20&offset="+offset;
+   const response=await fetch(url,{cache:"no-store"});
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw new Error(data.error?.message||JSON.stringify(data.error||"Ошибка сервера"));
+   checked+=data.checked||0;sent+=data.sent||0;errors+=data.errors||0;
+   offset+=data.checked||0;
+   localStorage.setItem(storageKey,String(offset));
+   if(!data.hasMore||!data.checked){
+    status.textContent="Готово!\\nОбработано в этом запуске: "+checked+"\\nОтправлено: "+sent+"\\nОшибок: "+errors+"\\nСледующая позиция: "+offset;
+    break;
+   }
+   await new Promise(resolve=>setTimeout(resolve,500));
+  }
+ }catch(e){
+  status.textContent="Остановлено: "+String(e.message||e)+"\\nУже обработано: "+checked+"\\nОтправлено: "+sent+"\\nСледующая позиция: "+offset+"\\nНажмите «Продолжить» для повторной попытки.";
+  button.hidden=false;
+ }finally{running=false;}
+}
+button.addEventListener("click",run);
+run();
+</script></body></html>`);
+  }
+
+
 
   const message = "Эдвард или Джейкоб? Кажется, пора снова определиться 🩸🌙\n\nДа-да, мы устраиваем кинопросмотр тех самых «Сумерек»!\n\n20 октября собираемся в нашем кинозале, чтобы снова пережить историю Беллы, Эдварда и Джейкоба, вспомнить любимые моменты и немного поностальгировать 🖤\n\nБольшой экран, любимые коктейли, кальяны и атмосфера Форкса — идеальный план на вечер.\n\n🎬 20 октября | 20:00\n📍 Северная, 299А — кинозал\n\nБронируй стол заранее!";
 
