@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
- const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking&source=telegram_mailing&campaign=twilight_2026_10_20";
+ const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking&source=telegram_mailing&campaign=wine_unlimited_2026_10_15";
 
   if (!BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SYNC_SECRET) {
     return res.status(500).json({
@@ -31,9 +31,9 @@ const dryRun = confirm !== "yes";
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
     const safeKey = JSON.stringify(key).replace(/</g, "\\u003c");
-    return res.status(200).send(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рассылка Сумерки</title><style>body{font:17px Arial,sans-serif;max-width:600px;margin:50px auto;padding:20px;line-height:1.5}h1{font-size:26px}#status{white-space:pre-line}button{padding:12px 20px;font-size:16px}</style></head><body><h1>Рассылка «Сумерки»</h1><p>Не закрывайте эту вкладку до завершения. Отправка идёт партиями по 20 человек.</p><p id="status">Подготовка…</p><button id="resume" hidden>Продолжить</button><script>
+    return res.status(200).send(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рассылка Сумерки</title><style>body{font:17px Arial,sans-serif;max-width:600px;margin:50px auto;padding:20px;line-height:1.5}h1{font-size:26px}#status{white-space:pre-line}button{padding:12px 20px;font-size:16px}</style></head><body><h1>Рассылка «Винный безлимит»</h1><p>Не закрывайте эту вкладку до завершения. Отправка идёт партиями по 20 человек.</p><p id="status">Подготовка…</p><button id="resume" hidden>Продолжить</button><script>
 const secret=${safeKey};
-const storageKey="twilight_2026_10_20_mailing_next_offset";
+const storageKey="wine_unlimited_2026_10_15_mailing_next_offset";
 const initialOffset=Number(new URLSearchParams(location.search).get("offset")||20);
 let offset=Math.max(initialOffset,Number(localStorage.getItem(storageKey)||initialOffset));
 let sent=0, errors=0, checked=0;
@@ -71,7 +71,7 @@ run();
 
 
 
-  const message = "Эдвард или Джейкоб? Кажется, пора снова определиться 🩸🌙\n\nДа-да, мы устраиваем кинопросмотр тех самых «Сумерек»!\n\n20 октября собираемся в нашем кинозале, чтобы снова пережить историю Беллы, Эдварда и Джейкоба, вспомнить любимые моменты и немного поностальгировать 🖤\n\nБольшой экран, любимые коктейли, кальяны и атмосфера Форкса — идеальный план на вечер.\n\n🎬 20 октября | 20:00\n📍 Северная, 299А — кинозал\n\nБронируй стол заранее!";
+  const message = "Сегодня можно не считать бокалы. 🍷\n\nПотому что в «Давай Покрепче» снова винный безлимит!\n\nГрузинское вино, любимая компания и вечер, который хочется немного продлить.\n\nВсего 1 500 ₽ — и вино льётся рекой. ❤️\n\n📍 40 лет Победы, 148/2\n\nСобирай своих, а столик лучше забронируй заранее. Вечер обещает быть хорошим 😉";
 
   try {
     const guestsResult = await getGuests({
@@ -209,7 +209,7 @@ async function sendTelegramMessage({ token, chatId, text, buttonUrl }) {
           inline_keyboard: [
             [
              {
-  text: "🎬 Забронировать стол",
+  text: "🍷 Забронировать стол",
   web_app: {
     url: buttonUrl
   }
