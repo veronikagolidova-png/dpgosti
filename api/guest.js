@@ -433,7 +433,7 @@ async function updateGuestInSupabase({ supabaseUrl, supabaseKey, phone, guest })
 }
 
 async function getIikoCustomerByPhone({ apiLogin, organizationId, phone }) {
-  const tokenResponse = await fetch("https://api-ru.iiko.services/api/1/access_token", {
+  const tokenResponse = await fetch("https://api-ru.iiko.services/api/2/access_token", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
