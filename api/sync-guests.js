@@ -176,7 +176,7 @@ async function updateGuest({ supabaseUrl, supabaseKey, phone, payload }) {
 }
 
 async function getIikoToken(apiLogin) {
-  const response = await fetch("https://api-ru.iiko.services/api/1/access_token", {
+  const response = await fetch("https://api-ru.iiko.services/api/2/access_token", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
