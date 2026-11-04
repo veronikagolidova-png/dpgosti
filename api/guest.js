@@ -435,34 +435,43 @@ async function updateGuestInSupabase({ supabaseUrl, supabaseKey, phone, guest })
 async function getIikoCustomerByPhone({ apiLogin, organizationId, phone }) {
   const tokenResponse = await fetch("https://api-ru.iiko.services/api/2/access_token", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      apiLogin
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ apiLogin })
   });
 
-  const tokenData = await tokenResponse.json();
-
-  if (!tokenResponse.ok || !tokenData.token) {
+  const tokenText = await tokenResponse.text();
+  let tokenData = null;
+  try {
+    tokenData = tokenText ? JSON.parse(tokenText) : null;
+  } catch (error) {
     return {
       ok: false,
       error: {
         step: "access_token",
+        status: tokenResponse.status,
+        message: "iiko returned a non-JSON or empty token response",
+        response: tokenText ? tokenText.slice(0, 500) : "empty response"
+      }
+    };
+  }
+
+  if (!tokenResponse.ok || !tokenData || !tokenData.token) {
+    return {
+      ok: false,
+      error: {
+        step: "access_token",
+        status: tokenResponse.status,
         data: tokenData
       }
     };
   }
 
-  const token = tokenData.token;
   const normalizedPhone = normalizePhone(phone);
-
   const customerResponse = await fetch("https://api-ru.iiko.services/api/1/loyalty/iiko/customer/info", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${tokenData.token}`
     },
     body: JSON.stringify({
       type: "phone",
@@ -471,13 +480,29 @@ async function getIikoCustomerByPhone({ apiLogin, organizationId, phone }) {
     })
   });
 
-  const customerData = await customerResponse.json();
-
-  if (!customerResponse.ok) {
+  const customerText = await customerResponse.text();
+  let customerData = null;
+  try {
+    customerData = customerText ? JSON.parse(customerText) : null;
+  } catch (error) {
     return {
       ok: false,
       error: {
         step: "customer_info",
+        status: customerResponse.status,
+        phone: normalizedPhone,
+        message: "iiko returned a non-JSON or empty customer response",
+        response: customerText ? customerText.slice(0, 500) : "empty response"
+      }
+    };
+  }
+
+  if (!customerResponse.ok || !customerData) {
+    return {
+      ok: false,
+      error: {
+        step: "customer_info",
+        status: customerResponse.status,
         phone: normalizedPhone,
         data: customerData
       }
@@ -485,7 +510,6 @@ async function getIikoCustomerByPhone({ apiLogin, organizationId, phone }) {
   }
 
   const walletBalances = customerData.walletBalances || [];
-
   const totalBalance = walletBalances.reduce((sum, wallet) => {
     return sum + Number(wallet.balance || 0);
   }, 0);
