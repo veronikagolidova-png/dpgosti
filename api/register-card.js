@@ -408,9 +408,11 @@ async function getIikoToken(apiLogin) {
     })
   });
 
-  const data = await response.json();
+  const raw = await response.text();
+  let data = null;
+  try { data = raw ? JSON.parse(raw) : null; } catch (_) { data = null; }
 
-  if (!response.ok || !data.token) {
+  if (!response.ok || !data || !data.token) {
     return {
       ok: false,
       error: data
