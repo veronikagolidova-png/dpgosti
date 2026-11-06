@@ -398,31 +398,39 @@ function validateTelegramInitData(initData, botToken) {
 }
 
 async function getIikoToken(apiLogin) {
-  const response = await fetch("https://api-ru.iiko.services/api/2/access_token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      apiLogin
-    })
-  });
+  const endpoint = "https://api-ru.iiko.services/api/2/access_token";
+  let lastError = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiLogin }),
+        signal: AbortSignal.timeout(8000)
+      });
+      const raw = await response.text();
+      let data = null;
+      try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
 
-  const raw = await response.text();
-  let data = null;
-  try { data = raw ? JSON.parse(raw) : null; } catch (_) { data = null; }
+      if (response.ok && data && typeof data.token === "string" && data.token) {
+        return { ok: true, token: data.token };
+      }
 
-  if (!response.ok || !data || !data.token) {
-    return {
-      ok: false,
-      error: data
-    };
+      lastError = {
+        status: response.status,
+        message: !raw ? "iiko вернул пустой ответ" : !data ? "iiko вернул ответ не в формате JSON" : "iiko отклонил запрос токена",
+        code: data && (data.errorCode || data.error || data.code) || null,
+        description: data && (data.errorDescription || data.message) || null
+      };
+      console.error("iiko token request failed", { attempt, ...lastError });
+      if (response.status >= 400 && response.status < 500 && response.status !== 429) break;
+    } catch (error) {
+      lastError = { message: error.name === "TimeoutError" ? "Превышено время ожидания iiko" : "Ошибка сети при обращении к iiko", type: error.name };
+      console.error("iiko token request failed", { attempt, ...lastError });
+    }
+    if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 350 * attempt));
   }
-
-  return {
-    ok: true,
-    token: data.token
-  };
+  return { ok: false, error: lastError };
 }
 
 async function getIikoCustomerByPhone({ token, organizationId, phone }) {
