@@ -184,10 +184,25 @@ async function getIikoToken(apiLogin) {
     body: JSON.stringify({ apiLogin })
   });
 
-  const data = await response.json();
+  const raw = await response.text();
+  let data = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    // iiko may return an HTML error page or malformed JSON.
+  }
 
-  if (!response.ok || !data.token) {
-    throw new Error("Не удалось получить токен iiko");
+  if (!response.ok || !data || typeof data.token !== "string" || !data.token) {
+    const reason = !raw
+      ? "пустой ответ"
+      : !data
+        ? "ответ не в формате JSON"
+        : data.errorDescription || data.message || data.error || "токен отсутствует";
+    console.error("iiko sync token request failed", {
+      status: response.status,
+      reason: String(reason).slice(0, 300)
+    });
+    throw new Error(`Не удалось получить токен iiko (HTTP ${response.status}): ${String(reason).slice(0, 200)}`);
   }
 
   return data.token;
