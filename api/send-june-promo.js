@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const SYNC_SECRET = process.env.SYNC_SECRET;
 
- const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking&source=telegram_mailing&campaign=wine_unlimited_2026_11_05_mailing";
+ const MINI_APP_URL = "https://dpgosti.vercel.app/?screen=booking&source=telegram_mailing&campaign=evening_plans_2026_11_13_mailing";
 
   if (!BOT_TOKEN || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !SYNC_SECRET) {
     return res.status(500).json({
@@ -31,9 +31,9 @@ const dryRun = confirm !== "yes";
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "no-store");
     const safeKey = JSON.stringify(key).replace(/</g, "\\u003c");
-    return res.status(200).send(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рассылка — винный безлимит 5 ноября</title><style>body{font:17px Arial,sans-serif;max-width:600px;margin:50px auto;padding:20px;line-height:1.5}h1{font-size:26px}#status{white-space:pre-line}button{padding:12px 20px;font-size:16px}</style></head><body><h1>Рассылка «Винный безлимит — 5 ноября»</h1><p>Не закрывайте эту вкладку до завершения. Отправка идёт партиями по 20 человек.</p><p id="status">Подготовка…</p><button id="resume" hidden>Продолжить</button><script>
+    return res.status(200).send(`<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рассылка — планы на вечер 13 ноября</title><style>body{font:17px Arial,sans-serif;max-width:600px;margin:50px auto;padding:20px;line-height:1.5}h1{font-size:26px}#status{white-space:pre-line}button{padding:12px 20px;font-size:16px}</style></head><body><h1>Рассылка «Планы на вечер — 13 ноября»</h1><p>Не закрывайте эту вкладку до завершения. Отправка идёт партиями по 20 человек.</p><p id="status">Подготовка…</p><button id="resume" hidden>Продолжить</button><script>
 const secret=${safeKey};
-const storageKey="wine_unlimited_2026_11_05_mailing_next_offset";
+const storageKey="evening_plans_2026_11_13_mailing_next_offset";
 const initialOffset=Number(new URLSearchParams(location.search).get("offset")||0);
 let offset=Math.max(initialOffset,Number(localStorage.getItem(storageKey)||initialOffset));
 let sent=0, errors=0, checked=0;
@@ -71,7 +71,7 @@ run();
 
 
 
-  const message = "У тебя на вечер планы есть? А у нас есть вино. И много 🍷\n\nСегодня четверг, а значит, в «Давай Покрепче» снова винный безлимит!\n\nГрузинское вино, вкусная еда, любимая компания и вечер, который точно не хочется заканчивать после первого бокала ❤️\n\n🍷 Винный безлимит — 1 500 ₽\n📍 40 лет Победы, 148/2\n\nЗови друзей и занимай столик. Мы уже ждём тебя 😉";
+  const message = "Кажется, мы уже знаем твои планы на вечер… 👀\nЛюбимый кальян, друзья рядом и никаких мыслей о завтрашнем дне.\nВсё правильно, мы тоже так и планировали 😏\nЖдём тебя сегодня в *«Давай Покрепче»* 🖤\nНу что, столик придержать?";
 
   try {
     const guestsResult = await getGuests({
